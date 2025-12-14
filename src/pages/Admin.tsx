@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useContent, SiteContent, Experience, Education, Certificate, Language } from "@/contexts/ContentContext";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Admin = () => {
   const { logout } = useAuth();
@@ -48,7 +56,50 @@ const Admin = () => {
     { id: "certificates", label: "Сертифікати" },
     { id: "languages", label: "Мови" },
     { id: "contact", label: "Контакти" },
+    { id: "export", label: "Експорт та розгортання" },
   ];
+
+  const handleExportContent = () => {
+    const dataStr = JSON.stringify(content, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `site-content-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({
+      title: "Експортовано!",
+      description: "Бекап контенту успішно завантажено.",
+    });
+  };
+
+  const handleImportContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target?.result as string) as SiteContent;
+          updateContent(imported);
+          setEditedContent(imported);
+          toast({
+            title: "Імпортовано!",
+            description: "Контент успішно відновлено з бекапу.",
+          });
+        } catch {
+          toast({
+            title: "Помилка!",
+            description: "Не вдалося прочитати файл. Перевірте формат.",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -542,6 +593,237 @@ const Admin = () => {
                         className="bg-muted"
                         rows={3}
                       />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Export & Deploy Section */}
+              {activeSection === "export" && (
+                <div className="space-y-8">
+                  <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+                    Експорт та розгортання
+                  </h2>
+
+                  {/* Export/Import Section */}
+                  <div className="glass-card rounded-xl p-6 border border-neon-cyan/30">
+                    <h3 className="font-display text-lg font-bold text-neon-cyan mb-4 flex items-center gap-2">
+                      <Download className="w-5 h-5" />
+                      Бекап контенту
+                    </h3>
+                    <p className="font-body text-muted-foreground mb-4">
+                      Експортуйте весь контент сайту у JSON файл для резервного копіювання або перенесення на інший хостинг.
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                      <Button variant="neonCyan" onClick={handleExportContent}>
+                        <Download className="w-4 h-4 mr-2" />
+                        Експортувати контент
+                      </Button>
+                      <div>
+                        <input
+                          type="file"
+                          accept=".json"
+                          onChange={handleImportContent}
+                          className="hidden"
+                          id="import-file"
+                        />
+                        <label htmlFor="import-file">
+                          <Button variant="outline" asChild>
+                            <span className="cursor-pointer">
+                              <Upload className="w-4 h-4 mr-2" />
+                              Імпортувати контент
+                            </span>
+                          </Button>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Deployment Instructions */}
+                  <div className="glass-card rounded-xl p-6 border border-neon-magenta/30">
+                    <h3 className="font-display text-lg font-bold text-neon-magenta mb-4 flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Інструкція з розгортання
+                    </h3>
+                    
+                    <div className="space-y-6">
+                      {/* Step 1 */}
+                      <div className="border-l-2 border-neon-cyan/50 pl-4">
+                        <h4 className="font-display font-bold text-foreground mb-2">
+                          1. Завантаження коду з GitHub
+                        </h4>
+                        <p className="font-body text-muted-foreground text-sm mb-2">
+                          Перейдіть у налаштування проекту Lovable → GitHub і скопіюйте репозиторій:
+                        </p>
+                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
+                          git clone https://github.com/your-username/your-repo.git
+                        </code>
+                      </div>
+
+                      {/* Step 2 */}
+                      <div className="border-l-2 border-neon-cyan/50 pl-4">
+                        <h4 className="font-display font-bold text-foreground mb-2">
+                          2. Встановлення залежностей
+                        </h4>
+                        <p className="font-body text-muted-foreground text-sm mb-2">
+                          Відкрийте термінал у папці проекту та виконайте:
+                        </p>
+                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
+                          npm install
+                        </code>
+                      </div>
+
+                      {/* Step 3 */}
+                      <div className="border-l-2 border-neon-cyan/50 pl-4">
+                        <h4 className="font-display font-bold text-foreground mb-2">
+                          3. Збірка проекту
+                        </h4>
+                        <p className="font-body text-muted-foreground text-sm mb-2">
+                          Створіть production-збірку:
+                        </p>
+                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
+                          npm run build
+                        </code>
+                        <p className="font-body text-muted-foreground text-sm mt-2">
+                          Результат буде у папці <code className="text-neon-cyan">dist/</code>
+                        </p>
+                      </div>
+
+                      {/* Step 4 */}
+                      <div className="border-l-2 border-neon-cyan/50 pl-4">
+                        <h4 className="font-display font-bold text-foreground mb-2">
+                          4. Варіанти хостингу
+                        </h4>
+                        <div className="space-y-3">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                                <Info className="w-4 h-4 mr-2" />
+                                Netlify (рекомендовано)
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle className="font-display text-neon-cyan">Розгортання на Netlify</DialogTitle>
+                                <DialogDescription className="font-body">
+                                  <ol className="list-decimal list-inside space-y-2 mt-4">
+                                    <li>Зареєструйтесь на netlify.com</li>
+                                    <li>Натисніть "Add new site" → "Deploy manually"</li>
+                                    <li>Перетягніть папку <code className="text-neon-cyan">dist/</code> у вікно</li>
+                                    <li>Або підключіть GitHub репозиторій для автоматичного деплою</li>
+                                    <li>Налаштуйте власний домен у розділі "Domain settings"</li>
+                                  </ol>
+                                </DialogDescription>
+                              </DialogHeader>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                                <Info className="w-4 h-4 mr-2" />
+                                Vercel
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle className="font-display text-neon-cyan">Розгортання на Vercel</DialogTitle>
+                                <DialogDescription className="font-body">
+                                  <ol className="list-decimal list-inside space-y-2 mt-4">
+                                    <li>Зареєструйтесь на vercel.com</li>
+                                    <li>Імпортуйте проект з GitHub</li>
+                                    <li>Виберіть Framework: Vite</li>
+                                    <li>Натисніть "Deploy"</li>
+                                    <li>Налаштуйте власний домен у налаштуваннях проекту</li>
+                                  </ol>
+                                </DialogDescription>
+                              </DialogHeader>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                                <Info className="w-4 h-4 mr-2" />
+                                GitHub Pages
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle className="font-display text-neon-cyan">Розгортання на GitHub Pages</DialogTitle>
+                                <DialogDescription className="font-body">
+                                  <ol className="list-decimal list-inside space-y-2 mt-4">
+                                    <li>Додайте у vite.config.ts: <code className="text-neon-cyan">base: '/repo-name/'</code></li>
+                                    <li>Встановіть: <code className="text-neon-cyan">npm install -D gh-pages</code></li>
+                                    <li>Додайте скрипт у package.json: <code className="text-neon-cyan">"deploy": "gh-pages -d dist"</code></li>
+                                    <li>Виконайте: <code className="text-neon-cyan">npm run build && npm run deploy</code></li>
+                                    <li>Увімкніть Pages у налаштуваннях репозиторію</li>
+                                  </ol>
+                                </DialogDescription>
+                              </DialogHeader>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                                <Info className="w-4 h-4 mr-2" />
+                                VPS / Власний сервер
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle className="font-display text-neon-cyan">Розгортання на VPS</DialogTitle>
+                                <DialogDescription className="font-body">
+                                  <ol className="list-decimal list-inside space-y-2 mt-4">
+                                    <li>Скопіюйте вміст папки <code className="text-neon-cyan">dist/</code> на сервер</li>
+                                    <li>Налаштуйте Nginx або Apache для статичного хостингу</li>
+                                    <li>Приклад конфігу Nginx:</li>
+                                    <pre className="bg-muted p-2 rounded text-xs mt-2 overflow-x-auto">
+{`server {
+  listen 80;
+  server_name your-domain.com;
+  root /var/www/your-site;
+  index index.html;
+  
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}`}
+                                    </pre>
+                                    <li>Налаштуйте SSL через Let's Encrypt</li>
+                                  </ol>
+                                </DialogDescription>
+                              </DialogHeader>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+
+                      {/* Step 5 */}
+                      <div className="border-l-2 border-neon-cyan/50 pl-4">
+                        <h4 className="font-display font-bold text-foreground mb-2">
+                          5. Відновлення контенту
+                        </h4>
+                        <p className="font-body text-muted-foreground text-sm">
+                          Після розгортання увійдіть в адмін-панель і імпортуйте раніше збережений JSON-файл з контентом.
+                          Контент зберігається у localStorage браузера користувача.
+                        </p>
+                      </div>
+
+                      {/* Important Note */}
+                      <div className="bg-neon-magenta/10 border border-neon-magenta/30 rounded-lg p-4 mt-6">
+                        <h4 className="font-display font-bold text-neon-magenta mb-2 flex items-center gap-2">
+                          <Info className="w-4 h-4" />
+                          Важливо
+                        </h4>
+                        <ul className="font-body text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Контент зберігається у localStorage браузера</li>
+                          <li>Регулярно робіть бекапи через функцію експорту</li>
+                          <li>При очищенні кешу браузера контент буде скинуто</li>
+                          <li>Для production рекомендуємо використовувати базу даних</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
