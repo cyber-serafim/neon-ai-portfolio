@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -191,72 +191,10 @@ const Admin = () => {
 
               {/* About Section */}
               {activeSection === "about" && (
-                <div className="space-y-6">
-                  <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-                    Про мене
-                  </h2>
-
-                  <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-2">Опис</label>
-                    <Textarea
-                      value={editedContent.about.description}
-                      onChange={(e) => setEditedContent({
-                        ...editedContent,
-                        about: { ...editedContent.about, description: e.target.value }
-                      })}
-                      className="bg-muted"
-                      rows={4}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-4">Персональна інформація</label>
-                    {editedContent.about.personalInfo.map((info, index) => (
-                      <div key={index} className="flex gap-4 mb-3">
-                        <Input
-                          placeholder="Мітка"
-                          value={info.label}
-                          onChange={(e) => {
-                            const newInfo = [...editedContent.about.personalInfo];
-                            newInfo[index].label = e.target.value;
-                            setEditedContent({
-                              ...editedContent,
-                              about: { ...editedContent.about, personalInfo: newInfo }
-                            });
-                          }}
-                          className="bg-muted w-1/3"
-                        />
-                        <Input
-                          placeholder="Значення"
-                          value={info.value}
-                          onChange={(e) => {
-                            const newInfo = [...editedContent.about.personalInfo];
-                            newInfo[index].value = e.target.value;
-                            setEditedContent({
-                              ...editedContent,
-                              about: { ...editedContent.about, personalInfo: newInfo }
-                            });
-                          }}
-                          className="bg-muted flex-1"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-2">
-                      Навички (через кому)
-                    </label>
-                    <Input
-                      value={editedContent.about.skills.join(", ")}
-                      onChange={(e) => setEditedContent({
-                        ...editedContent,
-                        about: { ...editedContent.about, skills: e.target.value.split(",").map(s => s.trim()) }
-                      })}
-                      className="bg-muted"
-                    />
-                  </div>
-                </div>
+                <AboutSectionEditor 
+                  editedContent={editedContent}
+                  setEditedContent={setEditedContent}
+                />
               )}
 
               {/* Experience Section */}
@@ -611,6 +549,160 @@ const Admin = () => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// About Section Editor Component
+interface AboutSectionEditorProps {
+  editedContent: SiteContent;
+  setEditedContent: React.Dispatch<React.SetStateAction<SiteContent>>;
+}
+
+const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEditorProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Файл занадто великий. Максимум 5MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditedContent({
+          ...editedContent,
+          about: { ...editedContent.about, profilePhoto: reader.result as string }
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setEditedContent({
+      ...editedContent,
+      about: { ...editedContent.about, profilePhoto: undefined }
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+        Про мене
+      </h2>
+
+      {/* Profile Photo Upload */}
+      <div>
+        <label className="font-body text-sm text-muted-foreground block mb-2">Фото профілю</label>
+        <div className="flex items-start gap-4">
+          {editedContent.about.profilePhoto ? (
+            <div className="relative">
+              <img 
+                src={editedContent.about.profilePhoto} 
+                alt="Фото профілю" 
+                className="w-32 h-32 object-cover rounded-full border-2 border-neon-cyan/50"
+              />
+              <button
+                onClick={handleRemovePhoto}
+                className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-32 h-32 border-2 border-dashed border-border rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-neon-cyan/50 transition-colors"
+            >
+              <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+              <span className="font-body text-xs text-muted-foreground text-center">Завантажити</span>
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoUpload}
+            className="hidden"
+          />
+          {editedContent.about.profilePhoto && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Змінити фото
+            </Button>
+          )}
+        </div>
+        <p className="font-body text-xs text-muted-foreground mt-2">
+          Рекомендований розмір: 500x500px. Максимум 5MB.
+        </p>
+      </div>
+
+      <div>
+        <label className="font-body text-sm text-muted-foreground block mb-2">Опис</label>
+        <Textarea
+          value={editedContent.about.description}
+          onChange={(e) => setEditedContent({
+            ...editedContent,
+            about: { ...editedContent.about, description: e.target.value }
+          })}
+          className="bg-muted"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <label className="font-body text-sm text-muted-foreground block mb-4">Персональна інформація</label>
+        {editedContent.about.personalInfo.map((info, index) => (
+          <div key={index} className="flex gap-4 mb-3">
+            <Input
+              placeholder="Мітка"
+              value={info.label}
+              onChange={(e) => {
+                const newInfo = [...editedContent.about.personalInfo];
+                newInfo[index].label = e.target.value;
+                setEditedContent({
+                  ...editedContent,
+                  about: { ...editedContent.about, personalInfo: newInfo }
+                });
+              }}
+              className="bg-muted w-1/3"
+            />
+            <Input
+              placeholder="Значення"
+              value={info.value}
+              onChange={(e) => {
+                const newInfo = [...editedContent.about.personalInfo];
+                newInfo[index].value = e.target.value;
+                setEditedContent({
+                  ...editedContent,
+                  about: { ...editedContent.about, personalInfo: newInfo }
+                });
+              }}
+              className="bg-muted flex-1"
+            />
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <label className="font-body text-sm text-muted-foreground block mb-2">
+          Навички (через кому)
+        </label>
+        <Input
+          value={editedContent.about.skills.join(", ")}
+          onChange={(e) => setEditedContent({
+            ...editedContent,
+            about: { ...editedContent.about, skills: e.target.value.split(",").map(s => s.trim()) }
+          })}
+          className="bg-muted"
+        />
       </div>
     </div>
   );
