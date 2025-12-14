@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -639,32 +639,75 @@ const Admin = () => {
                     </div>
                   </div>
 
+                  {/* Download Archive Section */}
+                  <div className="glass-card rounded-xl p-6 border border-neon-green/30">
+                    <h3 className="font-display text-lg font-bold text-neon-green mb-4 flex items-center gap-2">
+                      <Archive className="w-5 h-5" />
+                      Завантаження архіву сайту
+                    </h3>
+                    <p className="font-body text-muted-foreground mb-4">
+                      Для отримання повного архіву сайту (всі файли, структура, код) скористайтесь GitHub:
+                    </p>
+                    <ol className="font-body text-muted-foreground text-sm space-y-3 mb-4 list-decimal list-inside">
+                      <li>Відкрийте <strong className="text-foreground">налаштування проекту</strong> в Lovable (іконка шестерні)</li>
+                      <li>Перейдіть у вкладку <strong className="text-foreground">GitHub</strong></li>
+                      <li>Якщо ще не підключено — натисніть <strong className="text-neon-cyan">"Connect to GitHub"</strong></li>
+                      <li>Після підключення відкрийте ваш репозиторій на GitHub</li>
+                      <li>Натисніть зелену кнопку <strong className="text-neon-green">Code</strong> → <strong className="text-neon-green">Download ZIP</strong></li>
+                    </ol>
+                    <div className="bg-muted/50 rounded-lg p-4 border border-border">
+                      <p className="font-body text-sm text-muted-foreground">
+                        <strong className="text-neon-cyan">Альтернатива через Git:</strong>
+                      </p>
+                      <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan mt-2">
+                        git clone https://github.com/ваш-username/ваш-репозиторій.git
+                      </code>
+                    </div>
+                  </div>
+
                   {/* Deployment Instructions */}
                   <div className="glass-card rounded-xl p-6 border border-neon-magenta/30">
                     <h3 className="font-display text-lg font-bold text-neon-magenta mb-4 flex items-center gap-2">
                       <FileText className="w-5 h-5" />
-                      Інструкція з розгортання
+                      Інструкція з розгортання архіву
                     </h3>
                     
                     <div className="space-y-6">
                       {/* Step 1 */}
                       <div className="border-l-2 border-neon-cyan/50 pl-4">
                         <h4 className="font-display font-bold text-foreground mb-2">
-                          1. Завантаження коду з GitHub
+                          1. Розпакування архіву
                         </h4>
                         <p className="font-body text-muted-foreground text-sm mb-2">
-                          Перейдіть у налаштування проекту Lovable → GitHub і скопіюйте репозиторій:
+                          Розпакуйте завантажений ZIP-архів у будь-яку папку на вашому комп'ютері.
                         </p>
-                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
-                          git clone https://github.com/your-username/your-repo.git
-                        </code>
+                        <p className="font-body text-muted-foreground text-sm">
+                          Структура проекту:
+                        </p>
+                        <pre className="bg-muted p-3 rounded text-xs font-mono text-neon-cyan mt-2 overflow-x-auto">
+{`📁 your-site/
+├── 📁 public/          # Статичні файли
+├── 📁 src/             # Вихідний код
+│   ├── 📁 components/  # React компоненти
+│   ├── 📁 pages/       # Сторінки
+│   ├── 📁 contexts/    # Контексти
+│   └── 📁 hooks/       # Хуки
+├── index.html          # Головний HTML
+├── package.json        # Залежності
+├── vite.config.ts      # Налаштування Vite
+└── tailwind.config.ts  # Налаштування Tailwind`}
+                        </pre>
                       </div>
 
                       {/* Step 2 */}
                       <div className="border-l-2 border-neon-cyan/50 pl-4">
                         <h4 className="font-display font-bold text-foreground mb-2">
-                          2. Встановлення залежностей
+                          2. Встановлення Node.js та залежностей
                         </h4>
+                        <p className="font-body text-muted-foreground text-sm mb-2">
+                          Переконайтесь, що на вашому комп'ютері встановлено <strong className="text-foreground">Node.js 18+</strong>. 
+                          Завантажте з <a href="https://nodejs.org" target="_blank" rel="noopener" className="text-neon-cyan hover:underline">nodejs.org</a>
+                        </p>
                         <p className="font-body text-muted-foreground text-sm mb-2">
                           Відкрийте термінал у папці проекту та виконайте:
                         </p>
@@ -676,23 +719,39 @@ const Admin = () => {
                       {/* Step 3 */}
                       <div className="border-l-2 border-neon-cyan/50 pl-4">
                         <h4 className="font-display font-bold text-foreground mb-2">
-                          3. Збірка проекту
+                          3. Локальний запуск для тестування
                         </h4>
                         <p className="font-body text-muted-foreground text-sm mb-2">
-                          Створіть production-збірку:
+                          Для перевірки роботи сайту локально:
                         </p>
                         <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
-                          npm run build
+                          npm run dev
                         </code>
                         <p className="font-body text-muted-foreground text-sm mt-2">
-                          Результат буде у папці <code className="text-neon-cyan">dist/</code>
+                          Сайт буде доступний за адресою <code className="text-neon-cyan">http://localhost:5173</code>
                         </p>
                       </div>
 
                       {/* Step 4 */}
                       <div className="border-l-2 border-neon-cyan/50 pl-4">
                         <h4 className="font-display font-bold text-foreground mb-2">
-                          4. Варіанти хостингу
+                          4. Збірка для production
+                        </h4>
+                        <p className="font-body text-muted-foreground text-sm mb-2">
+                          Створіть оптимізовану збірку:
+                        </p>
+                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
+                          npm run build
+                        </code>
+                        <p className="font-body text-muted-foreground text-sm mt-2">
+                          Готовий сайт буде у папці <code className="text-neon-cyan">dist/</code> — ці файли завантажуйте на хостинг
+                        </p>
+                      </div>
+
+                      {/* Step 5 */}
+                      <div className="border-l-2 border-neon-cyan/50 pl-4">
+                        <h4 className="font-display font-bold text-foreground mb-2">
+                          5. Варіанти хостингу
                         </h4>
                         <div className="space-y-3">
                           <Dialog>
@@ -800,14 +859,13 @@ const Admin = () => {
                         </div>
                       </div>
 
-                      {/* Step 5 */}
+                      {/* Step 6 */}
                       <div className="border-l-2 border-neon-cyan/50 pl-4">
                         <h4 className="font-display font-bold text-foreground mb-2">
-                          5. Відновлення контенту
+                          6. Відновлення контенту
                         </h4>
                         <p className="font-body text-muted-foreground text-sm">
-                          Після розгортання увійдіть в адмін-панель і імпортуйте раніше збережений JSON-файл з контентом.
-                          Контент зберігається у localStorage браузера користувача.
+                          Після розгортання увійдіть в адмін-панель (<code className="text-neon-cyan">/login</code>) і імпортуйте раніше збережений JSON-файл з контентом.
                         </p>
                       </div>
 
