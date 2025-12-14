@@ -1,7 +1,11 @@
 import { ChevronDown, Shield, Server, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useContent } from "@/contexts/ContentContext";
 
 export const HeroSection = () => {
+  const { content } = useContent();
+  const { hero } = content;
+
   const scrollToAbout = () => {
     document.querySelector("#about")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -36,20 +40,19 @@ export const HeroSection = () => {
 
           {/* Name */}
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-4 opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <span className="text-gradient-neon">Антон Падура</span>
+            <span className="text-gradient-neon">{hero.name}</span>
           </h1>
 
           {/* Title */}
           <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: "0.6s" }}>
             <span className="inline-block font-display text-xl md:text-2xl lg:text-3xl text-foreground/90 border-l-4 border-neon-cyan pl-4">
-              IT-спеціаліст
+              {hero.title}
             </span>
           </div>
 
           {/* Description */}
           <p className="font-body text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.8s" }}>
-            <span className="neon-text-cyan">15+ років досвіду</span> в інформаційній безпеці,
-            адмініструванні систем та IT-менеджменті
+            {hero.description}
           </p>
 
           {/* CTA Buttons */}
@@ -72,11 +75,7 @@ export const HeroSection = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 md:gap-8 mt-16 opacity-0 animate-fade-in" style={{ animationDelay: "1.2s" }}>
-            {[
-              { value: "15+", label: "Років досвіду" },
-              { value: "6+", label: "Компаній" },
-              { value: "∞", label: "Проектів" },
-            ].map((stat, index) => (
+            {hero.stats.map((stat, index) => (
               <div key={index} className="glass-card p-4 md:p-6 rounded-xl">
                 <div className="font-display text-2xl md:text-4xl font-bold neon-text-cyan mb-1">
                   {stat.value}
