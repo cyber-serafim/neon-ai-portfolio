@@ -11,6 +11,7 @@ export interface AboutContent {
   description: string;
   personalInfo: { label: string; value: string }[];
   skills: string[];
+  profilePhoto?: string;
 }
 
 export interface Experience {
