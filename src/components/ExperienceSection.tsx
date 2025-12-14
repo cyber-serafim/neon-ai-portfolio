@@ -1,96 +1,11 @@
 import { useState } from "react";
 import { Briefcase, ChevronDown, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Experience {
-  company: string;
-  period: string;
-  title: string;
-  responsibilities: string[];
-  link?: string;
-}
-
-const experiences: Experience[] = [
-  {
-    company: "Digital Forensics Corporation",
-    period: "08.2021 – 05.2025",
-    title: "IT Security Specialist",
-    responsibilities: [
-      "Захист ресурсів, шифрування даних, аналітика інцидентів на базі ESET PROTECT",
-      "Захист від витоку даних на базі DLP Safetica",
-      "Планування заходів безпеки та виявлення вразливостей",
-      "Сканування вразливостей (Tenable Nessus, Wireshark, Nmap)",
-      "Адміністрування VMware, Proxmox, Veeam Backup",
-      "AD, DNS, GPO, RemoteApp, TrueNAS, Firewall, MS Office 365, Azure",
-      "Скриптинг (Python, PowerShell, bash)",
-      "Розгортання RemoteApp для Magnet Forensics",
-    ],
-  },
-  {
-    company: 'ТОВ "ЛЮКСВЕНРІТЕЙЛ"',
-    period: "06.2016 – 08.2021",
-    title: "IT Manager / Security Lead",
-    responsibilities: [
-      "Розробка IT-стратегії та побудова інформаційної безпеки",
-      "Забезпечення роботи та розвиток IT-інфраструктури",
-      "Управління продуктом flirtandtan.com",
-      "Адміністрування VMware, Proxmox, Hyper-V",
-      "WEB-сервери (nginx, apache), Veeam Backup",
-      "Системи відеоспостереження",
-      "Розміщення серверів у Європі",
-    ],
-    link: "https://flirtandtan.com/",
-  },
-  {
-    company: 'ПАТ "КБ "ГЕФЕСТ""',
-    period: "08.2013 – 03.2015",
-    title: "System Administrator",
-    responsibilities: [
-      "Впровадження посилення GSM",
-      "Адміністрування відеоспостереження та контролю доступу",
-      "Корпоративна телефонія на Asterisk",
-      "Проектування СКС та інфраструктури",
-      "Робота з Cisco, D-Link, MikroTik",
-      "Адміністрування VDS та Unix/Linux",
-    ],
-  },
-  {
-    company: 'AT "КБ "СОЮЗ"',
-    period: "06.2010 – 06.2016",
-    title: "IT Specialist",
-    responsibilities: [
-      "Впровадження гібридної IP-телефонії (Asterisk, Tadiran Telecom, Panasonic)",
-      "DLP на DeviceLock",
-      "Корпоративна Wi-Fi (UniFi)",
-      "Адміністрування ATC",
-      "Скриптинг",
-    ],
-  },
-  {
-    company: "Heaven Group Multimedia Co. Ltd.",
-    period: "08.2009 – 06.2010",
-    title: "System Administrator",
-    responsibilities: [
-      "Побудова локальної мережі",
-      "Моніторинг сервісів",
-      "Резервне копіювання",
-      "Адміністрування HP BladeSystem та StorageWorks",
-      "Поштовий сервер",
-    ],
-  },
-  {
-    company: 'ТОВ "ЛАКІНЕТ"',
-    period: "01.2008 – 08.2009",
-    title: "Technical Support Engineer",
-    responsibilities: [
-      "Моніторинг сервісів",
-      "Технічна підтримка",
-      "Документація",
-    ],
-  },
-];
+import { useContent } from "@/contexts/ContentContext";
 
 export const ExperienceSection = () => {
+  const { content } = useContent();
+  const { experiences } = content;
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
 
   return (

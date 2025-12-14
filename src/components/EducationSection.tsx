@@ -1,59 +1,10 @@
 import { GraduationCap, Award, Globe } from "lucide-react";
-
-interface Education {
-  institution: string;
-  degree: string;
-  field: string;
-  period: string;
-  icon: typeof GraduationCap;
-}
-
-interface Certificate {
-  name: string;
-  year: string;
-}
-
-interface Language {
-  name: string;
-  level: string;
-  percentage: number;
-}
-
-const educations: Education[] = [
-  {
-    institution: "Міжнародний інститут бізнесу",
-    degree: "Магістр",
-    field: "Бізнес адміністрування",
-    period: "2012 – 2015",
-    icon: GraduationCap,
-  },
-  {
-    institution: "Національний авіаційний університет",
-    degree: "Спеціаліст",
-    field: "Право, Кримінальне право",
-    period: "2009 – 2012",
-    icon: GraduationCap,
-  },
-  {
-    institution: "Національний університет харчових технологій",
-    degree: "Бакалавр",
-    field: "Автоматизація та комп'ютерні системи",
-    period: "2003 – 2008",
-    icon: GraduationCap,
-  },
-];
-
-const certificates: Certificate[] = [
-  { name: "Побудова систем IP-телефонії", year: "2013" },
-  { name: "Certificate Association of MBA accredited, MIB National MBA Program", year: "2015" },
-];
-
-const languages: Language[] = [
-  { name: "Українська", level: "Вільно", percentage: 100 },
-  { name: "Англійська", level: "Середній рівень", percentage: 60 },
-];
+import { useContent } from "@/contexts/ContentContext";
 
 export const EducationSection = () => {
+  const { content } = useContent();
+  const { education, certificates, languages } = content;
+
   return (
     <section id="education" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background decoration */}
@@ -79,14 +30,14 @@ export const EducationSection = () => {
               </h3>
               
               <div className="space-y-6">
-                {educations.map((edu, index) => (
+                {education.map((edu, index) => (
                   <div
                     key={index}
                     className="glass-card p-6 rounded-xl border border-border/50 hover:neon-border-cyan transition-all duration-300 group"
                   >
                     <div className="flex items-start gap-4">
                       <div className="p-3 bg-muted rounded-lg group-hover:bg-neon-cyan/10 transition-colors">
-                        <edu.icon className="w-6 h-6 text-neon-cyan" />
+                        <GraduationCap className="w-6 h-6 text-neon-cyan" />
                       </div>
                       <div className="flex-1">
                         <div className="font-body text-sm text-neon-cyan mb-1">

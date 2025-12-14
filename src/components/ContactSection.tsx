@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useContent } from "@/contexts/ContentContext";
 
 export const ContactSection = () => {
+  const { content } = useContent();
+  const { contact } = content;
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,19 +53,19 @@ export const ContactSection = () => {
     {
       icon: Phone,
       label: "Телефон",
-      value: "+380958777997",
-      href: "tel:+380958777997",
+      value: contact.phone,
+      href: `tel:${contact.phone}`,
     },
     {
       icon: Mail,
       label: "Email",
-      value: "padura@proton.me",
-      href: "mailto:padura@proton.me",
+      value: contact.email,
+      href: `mailto:${contact.email}`,
     },
     {
       icon: MapPin,
       label: "Локація",
-      value: "Київ, Україна",
+      value: contact.location,
       href: null,
     },
   ];
@@ -135,11 +139,10 @@ export const ContactSection = () => {
               {/* Decorative element */}
               <div className="hidden lg:block glass-card p-8 rounded-xl border border-border/50">
                 <div className="font-display text-2xl font-bold mb-4">
-                  <span className="text-gradient-neon">Готовий до співпраці?</span>
+                  <span className="text-gradient-neon">{contact.collaborationTitle}</span>
                 </div>
                 <p className="font-body text-muted-foreground">
-                  Понад 15 років досвіду в IT-безпеці та адмініструванні систем.
-                  Працюю з компаніями різного масштабу — від стартапів до корпорацій.
+                  {contact.collaborationText}
                 </p>
               </div>
             </div>

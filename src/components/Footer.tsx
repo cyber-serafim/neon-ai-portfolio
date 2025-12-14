@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -31,13 +32,22 @@ export const Footer = () => {
             <span className="hidden md:inline">та технологіями.</span>
           </div>
 
-          {/* Back to top */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="font-body text-sm text-muted-foreground hover:text-neon-cyan transition-colors uppercase tracking-wider"
-          >
-            На початок ↑
-          </button>
+          <div className="flex items-center gap-4">
+            {/* Admin link */}
+            <Link
+              to="/login"
+              className="font-body text-sm text-muted-foreground hover:text-neon-magenta transition-colors"
+            >
+              Admin
+            </Link>
+            {/* Back to top */}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="font-body text-sm text-muted-foreground hover:text-neon-cyan transition-colors uppercase tracking-wider"
+            >
+              На початок ↑
+            </button>
+          </div>
         </div>
       </div>
     </footer>
