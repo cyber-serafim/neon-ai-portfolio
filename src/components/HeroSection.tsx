@@ -1,10 +1,10 @@
 import { ChevronDown, Shield, Server, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useContent } from "@/contexts/ContentContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedContent } from "@/hooks/useTranslatedContent";
 
 export const HeroSection = () => {
-  const { content } = useContent();
+  const content = useTranslatedContent();
   const { hero } = content;
   const { t } = useLanguage();
 
