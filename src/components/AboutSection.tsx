@@ -1,16 +1,34 @@
 import { MapPin, Mail, Phone, User } from "lucide-react";
 import { useContent } from "@/contexts/ContentContext";
-
-const iconMap: Record<string, typeof User> = {
-  "Ім'я": User,
-  "Місто": MapPin,
-  "Телефон": Phone,
-  "Email": Mail,
-};
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const AboutSection = () => {
   const { content } = useContent();
   const { about } = content;
+  const { t, language } = useLanguage();
+
+  const iconMap: Record<string, typeof User> = {
+    [t.about.labels.name]: User,
+    [t.about.labels.city]: MapPin,
+    [t.about.labels.phone]: Phone,
+    [t.about.labels.email]: Mail,
+    // Ukrainian fallbacks
+    "Ім'я": User,
+    "Місто": MapPin,
+    "Телефон": Phone,
+    "Email": Mail,
+  };
+
+  // Map Ukrainian labels to translated labels
+  const getLabelTranslation = (label: string): string => {
+    const labelMap: Record<string, string> = {
+      "Ім'я": t.about.labels.name,
+      "Місто": t.about.labels.city,
+      "Телефон": t.about.labels.phone,
+      "Email": t.about.labels.email,
+    };
+    return labelMap[label] || label;
+  };
 
   return (
     <section id="about" className="py-20 md:py-32 relative overflow-hidden">
@@ -22,8 +40,8 @@ export const AboutSection = () => {
           {/* Section header */}
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              <span className="neon-text-cyan">Про</span>{" "}
-              <span className="text-foreground">мене</span>
+              <span className="neon-text-cyan">{t.about.titleHighlight}</span>{" "}
+              <span className="text-foreground">{t.about.title}</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-neon-cyan to-neon-magenta mx-auto rounded-full" />
           </div>
@@ -49,7 +67,7 @@ export const AboutSection = () => {
                     <div className="text-center p-6">
                       <div className="font-display text-6xl md:text-8xl font-bold text-gradient-neon mb-2">AP</div>
                       <div className="font-body text-sm md:text-base text-muted-foreground uppercase tracking-widest">
-                        Security Expert
+                        {t.about.securityExpert}
                       </div>
                     </div>
                   )}
@@ -66,7 +84,8 @@ export const AboutSection = () => {
               {/* Personal info cards */}
               <div className="grid sm:grid-cols-2 gap-4">
                 {about.personalInfo.map((item, index) => {
-                  const IconComponent = iconMap[item.label] || User;
+                  const translatedLabel = getLabelTranslation(item.label);
+                  const IconComponent = iconMap[item.label] || iconMap[translatedLabel] || User;
                   return (
                     <div
                       key={index}
@@ -78,7 +97,7 @@ export const AboutSection = () => {
                         </div>
                         <div>
                           <div className="font-body text-xs text-muted-foreground uppercase tracking-wider">
-                            {item.label}
+                            {translatedLabel}
                           </div>
                           <div className="font-body text-foreground">
                             {item.value}

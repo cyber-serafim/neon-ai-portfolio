@@ -1,9 +1,11 @@
 import { GraduationCap, Award, Globe } from "lucide-react";
 import { useContent } from "@/contexts/ContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const EducationSection = () => {
   const { content } = useContent();
   const { education, certificates, languages } = content;
+  const { t } = useLanguage();
 
   return (
     <section id="education" className="py-20 md:py-32 relative overflow-hidden">
@@ -15,8 +17,8 @@ export const EducationSection = () => {
           {/* Section header */}
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              <span className="neon-text-cyan">Освіта</span>{" "}
-              <span className="text-foreground">та навички</span>
+              <span className="neon-text-cyan">{t.education.titleHighlight}</span>{" "}
+              <span className="text-foreground">{t.education.title}</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-neon-cyan to-neon-magenta mx-auto rounded-full" />
           </div>
@@ -26,7 +28,7 @@ export const EducationSection = () => {
             <div>
               <h3 className="font-display text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                 <GraduationCap className="w-6 h-6 text-neon-cyan" />
-                <span className="text-foreground">Освіта</span>
+                <span className="text-foreground">{t.education.educationTitle}</span>
               </h3>
               
               <div className="space-y-6">
@@ -62,7 +64,7 @@ export const EducationSection = () => {
               <div>
                 <h3 className="font-display text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                   <Award className="w-6 h-6 text-neon-magenta" />
-                  <span className="text-foreground">Сертифікати</span>
+                  <span className="text-foreground">{t.education.certificates}</span>
                 </h3>
                 
                 <div className="space-y-4">
@@ -87,7 +89,7 @@ export const EducationSection = () => {
               <div>
                 <h3 className="font-display text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                   <Globe className="w-6 h-6 text-neon-purple" />
-                  <span className="text-foreground">Мови</span>
+                  <span className="text-foreground">{t.education.languages}</span>
                 </h3>
                 
                 <div className="space-y-6">

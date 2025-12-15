@@ -1,8 +1,10 @@
 import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="relative py-8 border-t border-border/50">
@@ -27,9 +29,9 @@ export const Footer = () => {
           {/* Copyright */}
           <div className="font-body text-sm text-muted-foreground flex items-center gap-2">
             <span>© {currentYear} Антон Падура.</span>
-            <span className="hidden md:inline">Створено з</span>
+            <span className="hidden md:inline">{t.footer.createdWith}</span>
             <Heart className="w-4 h-4 text-neon-magenta hidden md:inline animate-pulse" />
-            <span className="hidden md:inline">та технологіями.</span>
+            <span className="hidden md:inline">{t.footer.andTechnologies}</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -45,7 +47,7 @@ export const Footer = () => {
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="font-body text-sm text-muted-foreground hover:text-neon-cyan transition-colors uppercase tracking-wider"
             >
-              На початок ↑
+              {t.footer.backToTop}
             </button>
           </div>
         </div>

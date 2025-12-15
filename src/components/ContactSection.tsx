@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useContent } from "@/contexts/ContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const ContactSection = () => {
   const { content } = useContent();
   const { contact } = content;
+  const { t } = useLanguage();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -38,8 +40,8 @@ export const ContactSection = () => {
     setIsSubmitting(false);
     setIsSubmitted(true);
     toast({
-      title: "Повідомлення надіслано!",
-      description: "Дякую за звернення. Я зв'яжуся з вами найближчим часом.",
+      title: t.contact.toast.title,
+      description: t.contact.toast.description,
     });
 
     // Reset form after delay
@@ -52,19 +54,19 @@ export const ContactSection = () => {
   const contactInfo = [
     {
       icon: Phone,
-      label: "Телефон",
+      label: t.contact.phone,
       value: contact.phone,
       href: `tel:${contact.phone}`,
     },
     {
       icon: Mail,
-      label: "Email",
+      label: t.contact.email,
       value: contact.email,
       href: `mailto:${contact.email}`,
     },
     {
       icon: MapPin,
-      label: "Локація",
+      label: t.contact.location,
       value: contact.location,
       href: null,
     },
@@ -82,12 +84,12 @@ export const ContactSection = () => {
           {/* Section header */}
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              <span className="neon-text-magenta">Зв'язатися</span>{" "}
-              <span className="text-foreground">зі мною</span>
+              <span className="neon-text-magenta">{t.contact.titleHighlight}</span>{" "}
+              <span className="text-foreground">{t.contact.title}</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-neon-magenta to-neon-cyan mx-auto rounded-full" />
             <p className="font-body text-lg text-muted-foreground mt-6 max-w-2xl mx-auto">
-              Маєте пропозицію або питання? Заповніть форму або зв'яжіться напряму.
+              {t.contact.subtitle}
             </p>
           </div>
 
@@ -155,17 +157,17 @@ export const ContactSection = () => {
                     <CheckCircle className="w-12 h-12 text-neon-cyan" />
                   </div>
                   <h3 className="font-display text-2xl font-bold text-foreground mb-2">
-                    Дякую!
+                    {t.contact.success.title}
                   </h3>
                   <p className="font-body text-muted-foreground">
-                    Ваше повідомлення успішно надіслано.
+                    {t.contact.success.message}
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="font-body text-sm text-muted-foreground uppercase tracking-wider block mb-2">
-                      Ім'я
+                      {t.contact.form.name}
                     </label>
                     <Input
                       name="name"
@@ -173,13 +175,13 @@ export const ContactSection = () => {
                       onChange={handleChange}
                       required
                       className="bg-muted border-border/50 focus:border-neon-cyan focus:ring-neon-cyan/20 font-body"
-                      placeholder="Ваше ім'я"
+                      placeholder={t.contact.form.namePlaceholder}
                     />
                   </div>
 
                   <div>
                     <label className="font-body text-sm text-muted-foreground uppercase tracking-wider block mb-2">
-                      Email
+                      {t.contact.form.email}
                     </label>
                     <Input
                       type="email"
@@ -188,13 +190,13 @@ export const ContactSection = () => {
                       onChange={handleChange}
                       required
                       className="bg-muted border-border/50 focus:border-neon-cyan focus:ring-neon-cyan/20 font-body"
-                      placeholder="your@email.com"
+                      placeholder={t.contact.form.emailPlaceholder}
                     />
                   </div>
 
                   <div>
                     <label className="font-body text-sm text-muted-foreground uppercase tracking-wider block mb-2">
-                      Повідомлення
+                      {t.contact.form.message}
                     </label>
                     <Textarea
                       name="message"
@@ -203,7 +205,7 @@ export const ContactSection = () => {
                       required
                       rows={5}
                       className="bg-muted border-border/50 focus:border-neon-cyan focus:ring-neon-cyan/20 font-body resize-none"
-                      placeholder="Ваше повідомлення..."
+                      placeholder={t.contact.form.messagePlaceholder}
                     />
                   </div>
 
@@ -217,11 +219,11 @@ export const ContactSection = () => {
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <span className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
-                        Надсилання...
+                        {t.contact.form.sending}
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
-                        Надіслати
+                        {t.contact.form.submit}
                         <Send className="w-4 h-4" />
                       </span>
                     )}
