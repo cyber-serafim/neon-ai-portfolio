@@ -1,33 +1,19 @@
 import { MapPin, Mail, Phone, User } from "lucide-react";
-import { useContent } from "@/contexts/ContentContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedContent } from "@/hooks/useTranslatedContent";
 
 export const AboutSection = () => {
-  const { content } = useContent();
+  const content = useTranslatedContent();
   const { about } = content;
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
-  const iconMap: Record<string, typeof User> = {
-    [t.about.labels.name]: User,
-    [t.about.labels.city]: MapPin,
-    [t.about.labels.phone]: Phone,
-    [t.about.labels.email]: Mail,
-    // Ukrainian fallbacks
-    "Ім'я": User,
-    "Місто": MapPin,
-    "Телефон": Phone,
-    "Email": Mail,
-  };
-
-  // Map Ukrainian labels to translated labels
-  const getLabelTranslation = (label: string): string => {
-    const labelMap: Record<string, string> = {
-      "Ім'я": t.about.labels.name,
-      "Місто": t.about.labels.city,
-      "Телефон": t.about.labels.phone,
-      "Email": t.about.labels.email,
-    };
-    return labelMap[label] || label;
+  const getIconForLabel = (label: string) => {
+    const lowerLabel = label.toLowerCase();
+    if (lowerLabel.includes("name") || lowerLabel.includes("ім'я")) return User;
+    if (lowerLabel.includes("city") || lowerLabel.includes("місто")) return MapPin;
+    if (lowerLabel.includes("phone") || lowerLabel.includes("телефон")) return Phone;
+    if (lowerLabel.includes("email")) return Mail;
+    return User;
   };
 
   return (
@@ -84,8 +70,7 @@ export const AboutSection = () => {
               {/* Personal info cards */}
               <div className="grid sm:grid-cols-2 gap-4">
                 {about.personalInfo.map((item, index) => {
-                  const translatedLabel = getLabelTranslation(item.label);
-                  const IconComponent = iconMap[item.label] || iconMap[translatedLabel] || User;
+                  const IconComponent = getIconForLabel(item.label);
                   return (
                     <div
                       key={index}
@@ -97,7 +82,7 @@ export const AboutSection = () => {
                         </div>
                         <div>
                           <div className="font-body text-xs text-muted-foreground uppercase tracking-wider">
-                            {translatedLabel}
+                            {item.label}
                           </div>
                           <div className="font-body text-foreground">
                             {item.value}

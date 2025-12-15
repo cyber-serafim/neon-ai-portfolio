@@ -1,9 +1,9 @@
 import { GraduationCap, Award, Globe } from "lucide-react";
-import { useContent } from "@/contexts/ContentContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedContent } from "@/hooks/useTranslatedContent";
 
 export const EducationSection = () => {
-  const { content } = useContent();
+  const content = useTranslatedContent();
   const { education, certificates, languages } = content;
   const { t } = useLanguage();
 

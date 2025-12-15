@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Briefcase, ChevronDown, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useContent } from "@/contexts/ContentContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedContent } from "@/hooks/useTranslatedContent";
 
 export const ExperienceSection = () => {
-  const { content } = useContent();
+  const content = useTranslatedContent();
   const { experiences } = content;
   const { t } = useLanguage();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
