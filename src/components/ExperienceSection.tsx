@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Briefcase, ChevronDown, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useContent } from "@/contexts/ContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const ExperienceSection = () => {
   const { content } = useContent();
   const { experiences } = content;
+  const { t } = useLanguage();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
 
   return (
@@ -18,8 +20,8 @@ export const ExperienceSection = () => {
           {/* Section header */}
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              <span className="neon-text-magenta">Досвід</span>{" "}
-              <span className="text-foreground">роботи</span>
+              <span className="neon-text-magenta">{t.experience.titleHighlight}</span>{" "}
+              <span className="text-foreground">{t.experience.title}</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-neon-magenta to-neon-cyan mx-auto rounded-full" />
           </div>
@@ -116,7 +118,7 @@ export const ExperienceSection = () => {
                             className="inline-flex items-center gap-2 mt-4 font-body text-sm text-neon-cyan hover:text-neon-magenta transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            Переглянути проект
+                            {t.experience.viewProject}
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         )}

@@ -1,10 +1,12 @@
 import { ChevronDown, Shield, Server, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/contexts/ContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const HeroSection = () => {
   const { content } = useContent();
   const { hero } = content;
+  const { t } = useLanguage();
 
   const scrollToAbout = () => {
     document.querySelector("#about")?.scrollIntoView({ behavior: "smooth" });
@@ -62,14 +64,14 @@ export const HeroSection = () => {
               size="xl"
               onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
             >
-              Зв'язатися
+              {t.hero.contactBtn}
             </Button>
             <Button
               variant="neonCyan"
               size="xl"
               onClick={() => document.querySelector("#experience")?.scrollIntoView({ behavior: "smooth" })}
             >
-              Мій досвід
+              {t.hero.experienceBtn}
             </Button>
           </div>
 
