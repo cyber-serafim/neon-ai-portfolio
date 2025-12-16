@@ -35,9 +35,9 @@ export const Footer = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* csua.biz.ua link */}
+            {/* Admin link */}
             <Link
-              to="/admin"
+              to="Admin"
               className="font-body text-sm text-muted-foreground hover:text-neon-magenta transition-colors"
             >
              
