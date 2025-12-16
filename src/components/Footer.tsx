@@ -28,7 +28,7 @@ export const Footer = () => {
 
           {/* Copyright */}
           <div className="font-body text-sm text-muted-foreground flex items-center gap-2">
-            <span>© {currentYear} CyberSecurity Ukraine.</span>
+            <span>© {currentYear} Антон Падура.</span>
             <span className="hidden md:inline">{t.footer.createdWith}</span>
             <Heart className="w-4 h-4 text-neon-magenta hidden md:inline animate-pulse" />
             <span className="hidden md:inline">{t.footer.andTechnologies}</span>
@@ -40,7 +40,7 @@ export const Footer = () => {
               to="/login"
               className="font-body text-sm text-muted-foreground hover:text-neon-magenta transition-colors"
             >
-              .
+              Admin
             </Link>
             {/* Back to top */}
             <button
