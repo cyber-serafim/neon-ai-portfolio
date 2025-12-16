@@ -18,7 +18,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
         { label: "Ім'я", value: "Антон Падура" },
         { label: "Місто", value: "Київ, Україна" },
         { label: "Телефон", value: "+380958777997" },
-        { label: "Email", value: "anton.padura@proton.me" },
+        { label: "Email", value: "padura@proton.me" },
       ],
       skills: ["Інформаційна безпека", "Системне адміністрування", "IT-менеджмент", "DevOps", "Мережеві технології"],
     },
@@ -267,7 +267,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
     ],
     contact: {
       phone: "+380958777997",
-      email: "anton.padura@proton.me",
+      email: "padura@proton.me",
       location: "Kyiv, Ukraine",
       collaborationTitle: "Ready to collaborate?",
       collaborationText: "Over 15 years of experience in IT security and system administration. Working with companies of all sizes — from startups to corporations.",
