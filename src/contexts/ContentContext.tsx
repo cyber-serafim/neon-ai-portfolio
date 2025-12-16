@@ -75,7 +75,7 @@ const defaultContent: SiteContent = {
       { label: "Ім'я", value: "Антон Падура" },
       { label: "Місто", value: "Київ, Україна" },
       { label: "Телефон", value: "+380958777997" },
-      { label: "Email", value: "padura@proton.me" },
+      { label: "Email", value: "anton.padura@proton.me" },
     ],
     skills: ["Інформаційна безпека", "Системне адміністрування", "IT-менеджмент", "DevOps", "Мережеві технології"],
   },
