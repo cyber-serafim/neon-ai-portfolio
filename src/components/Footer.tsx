@@ -35,12 +35,12 @@ export const Footer = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Admin link */}
+            {/* Admin link   to="/login" */}
             <Link
               to="/login"
               className="font-body text-sm text-muted-foreground hover:text-neon-magenta transition-colors"
             >
-             .
+             
             </Link>
             {/* Back to top */}
             <button
