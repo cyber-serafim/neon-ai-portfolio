@@ -40,7 +40,7 @@ export const Footer = () => {
               to="/login"
               className="font-body text-sm text-muted-foreground hover:text-neon-magenta transition-colors"
             >
-             
+             .
             </Link>
             {/* Back to top */}
             <button
