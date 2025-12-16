@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Footer = () => {
@@ -34,6 +35,13 @@ export const Footer = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Admin link */}
+            <Link
+              to="/login"
+              className="font-body text-sm text-muted-foreground hover:text-neon-magenta transition-colors"
+            >
+              Admin
+            </Link>
             {/* Back to top */}
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
