@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
-import { useContent, SiteContent, Experience, Education, Certificate, Language } from "@/contexts/ContentContext";
+import { useContent, SiteContent, Experience, Education, Certificate, Language, BilingualContent } from "@/contexts/ContentContext";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -17,28 +17,48 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+type EditLanguage = "uk" | "en";
+
 const Admin = () => {
   const { logout } = useAuth();
-  const { content, updateContent, resetContent } = useContent();
+  const { bilingualContent, updateContent, resetContent } = useContent();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [editedContent, setEditedContent] = useState<SiteContent>(content);
+  const [editLanguage, setEditLanguage] = useState<EditLanguage>("uk");
+  const [editedContent, setEditedContent] = useState<BilingualContent>(bilingualContent);
   const [activeSection, setActiveSection] = useState<string>("hero");
 
+  // Get current language content for editing
+  const currentContent = editedContent[editLanguage];
+
+  // Update content for current language
+  const setCurrentContent = (newContent: SiteContent) => {
+    setEditedContent({
+      ...editedContent,
+      [editLanguage]: newContent,
+    });
+  };
+
   const handleSave = () => {
-    updateContent(editedContent);
+    updateContent(editedContent.uk, "uk");
+    updateContent(editedContent.en, "en");
     toast({
-      title: "Збережено!",
-      description: "Всі зміни успішно збережено.",
+      title: editLanguage === "uk" ? "Збережено!" : "Saved!",
+      description: editLanguage === "uk" 
+        ? "Всі зміни для обох мов успішно збережено." 
+        : "All changes for both languages saved successfully.",
     });
   };
 
   const handleReset = () => {
-    resetContent();
-    setEditedContent(content);
+    resetContent(editLanguage);
+    const langLabel = editLanguage === "uk" ? "українською" : "англійською";
+    const langLabelEn = editLanguage === "uk" ? "Ukrainian" : "English";
     toast({
-      title: "Скинуто!",
-      description: "Контент відновлено до початкових значень.",
+      title: editLanguage === "uk" ? "Скинуто!" : "Reset!",
+      description: editLanguage === "uk" 
+        ? `Контент ${langLabel} відновлено.`
+        : `${langLabelEn} content restored.`,
     });
     window.location.reload();
   };
@@ -49,30 +69,30 @@ const Admin = () => {
   };
 
   const sections = [
-    { id: "hero", label: "Головна секція" },
-    { id: "about", label: "Про мене" },
-    { id: "experience", label: "Досвід роботи" },
-    { id: "education", label: "Освіта" },
-    { id: "certificates", label: "Сертифікати" },
-    { id: "languages", label: "Мови" },
-    { id: "contact", label: "Контакти" },
-    { id: "export", label: "Експорт та розгортання" },
+    { id: "hero", label: editLanguage === "uk" ? "Головна секція" : "Hero Section" },
+    { id: "about", label: editLanguage === "uk" ? "Про мене" : "About Me" },
+    { id: "experience", label: editLanguage === "uk" ? "Досвід роботи" : "Experience" },
+    { id: "education", label: editLanguage === "uk" ? "Освіта" : "Education" },
+    { id: "certificates", label: editLanguage === "uk" ? "Сертифікати" : "Certificates" },
+    { id: "languages", label: editLanguage === "uk" ? "Мови" : "Languages" },
+    { id: "contact", label: editLanguage === "uk" ? "Контакти" : "Contacts" },
+    { id: "export", label: editLanguage === "uk" ? "Експорт та розгортання" : "Export & Deploy" },
   ];
 
   const handleExportContent = () => {
-    const dataStr = JSON.stringify(content, null, 2);
+    const dataStr = JSON.stringify(editedContent, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `site-content-backup-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `site-content-bilingual-backup-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     toast({
-      title: "Експортовано!",
-      description: "Бекап контенту успішно завантажено.",
+      title: editLanguage === "uk" ? "Експортовано!" : "Exported!",
+      description: editLanguage === "uk" ? "Бекап контенту успішно завантажено." : "Content backup downloaded successfully.",
     });
   };
 
@@ -82,17 +102,24 @@ const Admin = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const imported = JSON.parse(e.target?.result as string) as SiteContent;
-          updateContent(imported);
-          setEditedContent(imported);
+          const imported = JSON.parse(e.target?.result as string);
+          // Handle both old single-language and new bilingual format
+          if (imported.uk && imported.en) {
+            setEditedContent(imported as BilingualContent);
+            updateContent(imported.uk, "uk");
+            updateContent(imported.en, "en");
+          } else if (imported.hero) {
+            // Old format - import as current language
+            setCurrentContent(imported as SiteContent);
+          }
           toast({
-            title: "Імпортовано!",
-            description: "Контент успішно відновлено з бекапу.",
+            title: editLanguage === "uk" ? "Імпортовано!" : "Imported!",
+            description: editLanguage === "uk" ? "Контент успішно відновлено з бекапу." : "Content restored from backup.",
           });
         } catch {
           toast({
-            title: "Помилка!",
-            description: "Не вдалося прочитати файл. Перевірте формат.",
+            title: editLanguage === "uk" ? "Помилка!" : "Error!",
+            description: editLanguage === "uk" ? "Не вдалося прочитати файл. Перевірте формат." : "Failed to read file. Check format.",
             variant: "destructive",
           });
         }
@@ -101,30 +128,61 @@ const Admin = () => {
     }
   };
 
+  // Language toggle component
+  const LanguageToggle = () => (
+    <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+      <button
+        onClick={() => setEditLanguage("uk")}
+        className={cn(
+          "flex items-center gap-2 px-3 py-1.5 rounded-md font-body text-sm transition-all",
+          editLanguage === "uk" 
+            ? "bg-neon-cyan/20 text-neon-cyan" 
+            : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        🇺🇦 UA
+      </button>
+      <button
+        onClick={() => setEditLanguage("en")}
+        className={cn(
+          "flex items-center gap-2 px-3 py-1.5 rounded-md font-body text-sm transition-all",
+          editLanguage === "en" 
+            ? "bg-neon-cyan/20 text-neon-cyan" 
+            : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        🇬🇧 EN
+      </button>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 glass-card border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="font-display text-xl font-bold neon-text-cyan">
-            Адмін панель
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="font-display text-xl font-bold neon-text-cyan">
+              {editLanguage === "uk" ? "Адмін панель" : "Admin Panel"}
+            </h1>
+            <LanguageToggle />
+          </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
               <Home className="w-4 h-4 mr-2" />
-              На сайт
+              {editLanguage === "uk" ? "На сайт" : "View Site"}
             </Button>
             <Button variant="neonCyan" size="sm" onClick={handleSave}>
               <Save className="w-4 h-4 mr-2" />
-              Зберегти
+              {editLanguage === "uk" ? "Зберегти" : "Save"}
             </Button>
             <Button variant="ghost" size="sm" onClick={handleReset}>
               <RotateCcw className="w-4 h-4 mr-2" />
-              Скинути
+              {editLanguage === "uk" ? "Скинути" : "Reset"}
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
-              Вийти
+              {editLanguage === "uk" ? "Вийти" : "Logout"}
             </Button>
           </div>
         </div>
@@ -136,7 +194,7 @@ const Admin = () => {
           <div className="lg:col-span-1">
             <nav className="glass-card rounded-xl p-4 sticky top-24">
               <h2 className="font-display text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">
-                Секції
+                {editLanguage === "uk" ? "Секції" : "Sections"}
               </h2>
               <ul className="space-y-2">
                 {sections.map((section) => (
@@ -155,6 +213,16 @@ const Admin = () => {
                   </li>
                 ))}
               </ul>
+
+              {/* Language indicator */}
+              <div className="mt-6 p-3 bg-muted/50 rounded-lg">
+                <p className="font-body text-xs text-muted-foreground mb-2">
+                  {editLanguage === "uk" ? "Редагування мови:" : "Editing language:"}
+                </p>
+                <p className="font-display text-sm text-neon-cyan">
+                  {editLanguage === "uk" ? "🇺🇦 Українська" : "🇬🇧 English"}
+                </p>
+              </div>
             </nav>
           </div>
 
@@ -165,71 +233,79 @@ const Admin = () => {
               {activeSection === "hero" && (
                 <div className="space-y-6">
                   <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-                    Головна секція
+                    {editLanguage === "uk" ? "Головна секція" : "Hero Section"}
                   </h2>
                   
                   <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-2">Ім'я</label>
+                    <label className="font-body text-sm text-muted-foreground block mb-2">
+                      {editLanguage === "uk" ? "Ім'я" : "Name"}
+                    </label>
                     <Input
-                      value={editedContent.hero.name}
-                      onChange={(e) => setEditedContent({
-                        ...editedContent,
-                        hero: { ...editedContent.hero, name: e.target.value }
+                      value={currentContent.hero.name}
+                      onChange={(e) => setCurrentContent({
+                        ...currentContent,
+                        hero: { ...currentContent.hero, name: e.target.value }
                       })}
                       className="bg-muted"
                     />
                   </div>
 
                   <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-2">Заголовок</label>
+                    <label className="font-body text-sm text-muted-foreground block mb-2">
+                      {editLanguage === "uk" ? "Заголовок" : "Title"}
+                    </label>
                     <Input
-                      value={editedContent.hero.title}
-                      onChange={(e) => setEditedContent({
-                        ...editedContent,
-                        hero: { ...editedContent.hero, title: e.target.value }
+                      value={currentContent.hero.title}
+                      onChange={(e) => setCurrentContent({
+                        ...currentContent,
+                        hero: { ...currentContent.hero, title: e.target.value }
                       })}
                       className="bg-muted"
                     />
                   </div>
 
                   <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-2">Опис</label>
+                    <label className="font-body text-sm text-muted-foreground block mb-2">
+                      {editLanguage === "uk" ? "Опис" : "Description"}
+                    </label>
                     <Textarea
-                      value={editedContent.hero.description}
-                      onChange={(e) => setEditedContent({
-                        ...editedContent,
-                        hero: { ...editedContent.hero, description: e.target.value }
+                      value={currentContent.hero.description}
+                      onChange={(e) => setCurrentContent({
+                        ...currentContent,
+                        hero: { ...currentContent.hero, description: e.target.value }
                       })}
                       className="bg-muted"
                     />
                   </div>
 
                   <div>
-                    <label className="font-body text-sm text-muted-foreground block mb-4">Статистика</label>
-                    {editedContent.hero.stats.map((stat, index) => (
+                    <label className="font-body text-sm text-muted-foreground block mb-4">
+                      {editLanguage === "uk" ? "Статистика" : "Statistics"}
+                    </label>
+                    {currentContent.hero.stats.map((stat, index) => (
                       <div key={index} className="flex gap-4 mb-3">
                         <Input
-                          placeholder="Значення"
+                          placeholder={editLanguage === "uk" ? "Значення" : "Value"}
                           value={stat.value}
                           onChange={(e) => {
-                            const newStats = [...editedContent.hero.stats];
+                            const newStats = [...currentContent.hero.stats];
                             newStats[index].value = e.target.value;
-                            setEditedContent({
-                              ...editedContent,
-                              hero: { ...editedContent.hero, stats: newStats }
+                            setCurrentContent({
+                              ...currentContent,
+                              hero: { ...currentContent.hero, stats: newStats }
                             });
                           }}
                           className="bg-muted w-1/3"
                         />
                         <Input
-                          placeholder="Підпис"
+                          placeholder={editLanguage === "uk" ? "Підпис" : "Label"}
                           value={stat.label}
                           onChange={(e) => {
-                            const newStats = [...editedContent.hero.stats];
+                            const newStats = [...currentContent.hero.stats];
                             newStats[index].label = e.target.value;
-                            setEditedContent({
-                              ...editedContent,
-                              hero: { ...editedContent.hero, stats: newStats }
+                            setCurrentContent({
+                              ...currentContent,
+                              hero: { ...currentContent.hero, stats: newStats }
                             });
                           }}
                           className="bg-muted flex-1"
@@ -243,8 +319,9 @@ const Admin = () => {
               {/* About Section */}
               {activeSection === "about" && (
                 <AboutSectionEditor 
-                  editedContent={editedContent}
-                  setEditedContent={setEditedContent}
+                  editedContent={currentContent}
+                  setEditedContent={setCurrentContent}
+                  editLanguage={editLanguage}
                 />
               )}
 
@@ -253,41 +330,42 @@ const Admin = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="font-display text-2xl font-bold text-foreground">
-                      Досвід роботи
+                      {editLanguage === "uk" ? "Досвід роботи" : "Work Experience"}
                     </h2>
                     <Button
                       variant="neonCyan"
                       size="sm"
                       onClick={() => {
                         const newExp: Experience = {
-                          company: "Нова компанія",
-                          period: "2024 – теперішній",
-                          title: "Посада",
-                          responsibilities: ["Обов'язок 1"],
+                          company: editLanguage === "uk" ? "Нова компанія" : "New Company",
+                          period: "2024 – present",
+                          title: editLanguage === "uk" ? "Посада" : "Position",
+                          responsibilities: [editLanguage === "uk" ? "Обов'язок 1" : "Responsibility 1"],
                         };
-                        setEditedContent({
-                          ...editedContent,
-                          experiences: [...editedContent.experiences, newExp]
+                        setCurrentContent({
+                          ...currentContent,
+                          experiences: [...currentContent.experiences, newExp]
                         });
                       }}
                     >
-                      + Додати
+                      + {editLanguage === "uk" ? "Додати" : "Add"}
                     </Button>
                   </div>
 
-                  {editedContent.experiences.map((exp, expIndex) => (
+                  {currentContent.experiences.map((exp, expIndex) => (
                     <ExperienceEditor
                       key={expIndex}
                       experience={exp}
                       index={expIndex}
+                      editLanguage={editLanguage}
                       onChange={(updated) => {
-                        const newExps = [...editedContent.experiences];
+                        const newExps = [...currentContent.experiences];
                         newExps[expIndex] = updated;
-                        setEditedContent({ ...editedContent, experiences: newExps });
+                        setCurrentContent({ ...currentContent, experiences: newExps });
                       }}
                       onDelete={() => {
-                        const newExps = editedContent.experiences.filter((_, i) => i !== expIndex);
-                        setEditedContent({ ...editedContent, experiences: newExps });
+                        const newExps = currentContent.experiences.filter((_, i) => i !== expIndex);
+                        setCurrentContent({ ...currentContent, experiences: newExps });
                       }}
                     />
                   ))}
@@ -299,84 +377,86 @@ const Admin = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="font-display text-2xl font-bold text-foreground">
-                      Освіта
+                      {editLanguage === "uk" ? "Освіта" : "Education"}
                     </h2>
                     <Button
                       variant="neonCyan"
                       size="sm"
                       onClick={() => {
                         const newEdu: Education = {
-                          institution: "Новий навчальний заклад",
-                          degree: "Ступінь",
-                          field: "Спеціальність",
+                          institution: editLanguage === "uk" ? "Новий навчальний заклад" : "New Institution",
+                          degree: editLanguage === "uk" ? "Ступінь" : "Degree",
+                          field: editLanguage === "uk" ? "Спеціальність" : "Field",
                           period: "2020 – 2024",
                         };
-                        setEditedContent({
-                          ...editedContent,
-                          education: [...editedContent.education, newEdu]
+                        setCurrentContent({
+                          ...currentContent,
+                          education: [...currentContent.education, newEdu]
                         });
                       }}
                     >
-                      + Додати
+                      + {editLanguage === "uk" ? "Додати" : "Add"}
                     </Button>
                   </div>
 
-                  {editedContent.education.map((edu, index) => (
+                  {currentContent.education.map((edu, index) => (
                     <div key={index} className="border border-border/50 rounded-lg p-4 mb-4">
                       <div className="flex justify-between items-start mb-4">
-                        <span className="font-body text-sm text-muted-foreground">Запис #{index + 1}</span>
+                        <span className="font-body text-sm text-muted-foreground">
+                          {editLanguage === "uk" ? "Запис" : "Entry"} #{index + 1}
+                        </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-destructive hover:text-destructive"
                           onClick={() => {
-                            const newEdu = editedContent.education.filter((_, i) => i !== index);
-                            setEditedContent({ ...editedContent, education: newEdu });
+                            const newEdu = currentContent.education.filter((_, i) => i !== index);
+                            setCurrentContent({ ...currentContent, education: newEdu });
                           }}
                         >
-                          Видалити
+                          {editLanguage === "uk" ? "Видалити" : "Delete"}
                         </Button>
                       </div>
                       <div className="grid gap-4">
                         <Input
-                          placeholder="Навчальний заклад"
+                          placeholder={editLanguage === "uk" ? "Навчальний заклад" : "Institution"}
                           value={edu.institution}
                           onChange={(e) => {
-                            const newEdu = [...editedContent.education];
+                            const newEdu = [...currentContent.education];
                             newEdu[index].institution = e.target.value;
-                            setEditedContent({ ...editedContent, education: newEdu });
+                            setCurrentContent({ ...currentContent, education: newEdu });
                           }}
                           className="bg-muted"
                         />
                         <div className="grid grid-cols-2 gap-4">
                           <Input
-                            placeholder="Ступінь"
+                            placeholder={editLanguage === "uk" ? "Ступінь" : "Degree"}
                             value={edu.degree}
                             onChange={(e) => {
-                              const newEdu = [...editedContent.education];
+                              const newEdu = [...currentContent.education];
                               newEdu[index].degree = e.target.value;
-                              setEditedContent({ ...editedContent, education: newEdu });
+                              setCurrentContent({ ...currentContent, education: newEdu });
                             }}
                             className="bg-muted"
                           />
                           <Input
-                            placeholder="Період"
+                            placeholder={editLanguage === "uk" ? "Період" : "Period"}
                             value={edu.period}
                             onChange={(e) => {
-                              const newEdu = [...editedContent.education];
+                              const newEdu = [...currentContent.education];
                               newEdu[index].period = e.target.value;
-                              setEditedContent({ ...editedContent, education: newEdu });
+                              setCurrentContent({ ...currentContent, education: newEdu });
                             }}
                             className="bg-muted"
                           />
                         </div>
                         <Input
-                          placeholder="Спеціальність"
+                          placeholder={editLanguage === "uk" ? "Спеціальність" : "Field of Study"}
                           value={edu.field}
                           onChange={(e) => {
-                            const newEdu = [...editedContent.education];
+                            const newEdu = [...currentContent.education];
                             newEdu[index].field = e.target.value;
-                            setEditedContent({ ...editedContent, education: newEdu });
+                            setCurrentContent({ ...currentContent, education: newEdu });
                           }}
                           className="bg-muted"
                         />
@@ -391,42 +471,45 @@ const Admin = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="font-display text-2xl font-bold text-foreground">
-                      Сертифікати
+                      {editLanguage === "uk" ? "Сертифікати" : "Certificates"}
                     </h2>
                     <Button
                       variant="neonCyan"
                       size="sm"
                       onClick={() => {
-                        const newCert: Certificate = { name: "Новий сертифікат", year: "2024" };
-                        setEditedContent({
-                          ...editedContent,
-                          certificates: [...editedContent.certificates, newCert]
+                        const newCert: Certificate = { 
+                          name: editLanguage === "uk" ? "Новий сертифікат" : "New Certificate", 
+                          year: "2024" 
+                        };
+                        setCurrentContent({
+                          ...currentContent,
+                          certificates: [...currentContent.certificates, newCert]
                         });
                       }}
                     >
-                      + Додати
+                      + {editLanguage === "uk" ? "Додати" : "Add"}
                     </Button>
                   </div>
 
-                  {editedContent.certificates.map((cert, index) => (
+                  {currentContent.certificates.map((cert, index) => (
                     <div key={index} className="flex gap-4 items-center mb-3">
                       <Input
-                        placeholder="Назва сертифікату"
+                        placeholder={editLanguage === "uk" ? "Назва сертифікату" : "Certificate Name"}
                         value={cert.name}
                         onChange={(e) => {
-                          const newCerts = [...editedContent.certificates];
+                          const newCerts = [...currentContent.certificates];
                           newCerts[index].name = e.target.value;
-                          setEditedContent({ ...editedContent, certificates: newCerts });
+                          setCurrentContent({ ...currentContent, certificates: newCerts });
                         }}
                         className="bg-muted flex-1"
                       />
                       <Input
-                        placeholder="Рік"
+                        placeholder={editLanguage === "uk" ? "Рік" : "Year"}
                         value={cert.year}
                         onChange={(e) => {
-                          const newCerts = [...editedContent.certificates];
+                          const newCerts = [...currentContent.certificates];
                           newCerts[index].year = e.target.value;
-                          setEditedContent({ ...editedContent, certificates: newCerts });
+                          setCurrentContent({ ...currentContent, certificates: newCerts });
                         }}
                         className="bg-muted w-24"
                       />
@@ -435,8 +518,8 @@ const Admin = () => {
                         size="sm"
                         className="text-destructive"
                         onClick={() => {
-                          const newCerts = editedContent.certificates.filter((_, i) => i !== index);
-                          setEditedContent({ ...editedContent, certificates: newCerts });
+                          const newCerts = currentContent.certificates.filter((_, i) => i !== index);
+                          setCurrentContent({ ...currentContent, certificates: newCerts });
                         }}
                       >
                         ×
@@ -451,65 +534,71 @@ const Admin = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="font-display text-2xl font-bold text-foreground">
-                      Мови
+                      {editLanguage === "uk" ? "Мови" : "Languages"}
                     </h2>
                     <Button
                       variant="neonCyan"
                       size="sm"
                       onClick={() => {
-                        const newLang: Language = { name: "Нова мова", level: "Базовий", percentage: 30 };
-                        setEditedContent({
-                          ...editedContent,
-                          languages: [...editedContent.languages, newLang]
+                        const newLang: Language = { 
+                          name: editLanguage === "uk" ? "Нова мова" : "New Language", 
+                          level: editLanguage === "uk" ? "Базовий" : "Basic", 
+                          percentage: 30 
+                        };
+                        setCurrentContent({
+                          ...currentContent,
+                          languages: [...currentContent.languages, newLang]
                         });
                       }}
                     >
-                      + Додати
+                      + {editLanguage === "uk" ? "Додати" : "Add"}
                     </Button>
                   </div>
 
-                  {editedContent.languages.map((lang, index) => (
+                  {currentContent.languages.map((lang, index) => (
                     <div key={index} className="border border-border/50 rounded-lg p-4 mb-4">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="font-body text-sm text-muted-foreground">Мова #{index + 1}</span>
+                        <span className="font-body text-sm text-muted-foreground">
+                          {editLanguage === "uk" ? "Мова" : "Language"} #{index + 1}
+                        </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-destructive"
                           onClick={() => {
-                            const newLangs = editedContent.languages.filter((_, i) => i !== index);
-                            setEditedContent({ ...editedContent, languages: newLangs });
+                            const newLangs = currentContent.languages.filter((_, i) => i !== index);
+                            setCurrentContent({ ...currentContent, languages: newLangs });
                           }}
                         >
-                          Видалити
+                          {editLanguage === "uk" ? "Видалити" : "Delete"}
                         </Button>
                       </div>
                       <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                           <Input
-                            placeholder="Назва мови"
+                            placeholder={editLanguage === "uk" ? "Назва мови" : "Language Name"}
                             value={lang.name}
                             onChange={(e) => {
-                              const newLangs = [...editedContent.languages];
+                              const newLangs = [...currentContent.languages];
                               newLangs[index].name = e.target.value;
-                              setEditedContent({ ...editedContent, languages: newLangs });
+                              setCurrentContent({ ...currentContent, languages: newLangs });
                             }}
                             className="bg-muted"
                           />
                           <Input
-                            placeholder="Рівень"
+                            placeholder={editLanguage === "uk" ? "Рівень" : "Level"}
                             value={lang.level}
                             onChange={(e) => {
-                              const newLangs = [...editedContent.languages];
+                              const newLangs = [...currentContent.languages];
                               newLangs[index].level = e.target.value;
-                              setEditedContent({ ...editedContent, languages: newLangs });
+                              setCurrentContent({ ...currentContent, languages: newLangs });
                             }}
                             className="bg-muted"
                           />
                         </div>
                         <div>
                           <label className="font-body text-sm text-muted-foreground block mb-2">
-                            Відсоток: {lang.percentage}%
+                            {editLanguage === "uk" ? "Відсоток" : "Percentage"}: {lang.percentage}%
                           </label>
                           <input
                             type="range"
@@ -517,9 +606,9 @@ const Admin = () => {
                             max="100"
                             value={lang.percentage}
                             onChange={(e) => {
-                              const newLangs = [...editedContent.languages];
+                              const newLangs = [...currentContent.languages];
                               newLangs[index].percentage = parseInt(e.target.value);
-                              setEditedContent({ ...editedContent, languages: newLangs });
+                              setCurrentContent({ ...currentContent, languages: newLangs });
                             }}
                             className="w-full"
                           />
@@ -534,17 +623,19 @@ const Admin = () => {
               {activeSection === "contact" && (
                 <div className="space-y-6">
                   <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-                    Контакти
+                    {editLanguage === "uk" ? "Контакти" : "Contacts"}
                   </h2>
 
                   <div className="grid gap-4">
                     <div>
-                      <label className="font-body text-sm text-muted-foreground block mb-2">Телефон</label>
+                      <label className="font-body text-sm text-muted-foreground block mb-2">
+                        {editLanguage === "uk" ? "Телефон" : "Phone"}
+                      </label>
                       <Input
-                        value={editedContent.contact.phone}
-                        onChange={(e) => setEditedContent({
-                          ...editedContent,
-                          contact: { ...editedContent.contact, phone: e.target.value }
+                        value={currentContent.contact.phone}
+                        onChange={(e) => setCurrentContent({
+                          ...currentContent,
+                          contact: { ...currentContent.contact, phone: e.target.value }
                         })}
                         className="bg-muted"
                       />
@@ -552,43 +643,49 @@ const Admin = () => {
                     <div>
                       <label className="font-body text-sm text-muted-foreground block mb-2">Email</label>
                       <Input
-                        value={editedContent.contact.email}
-                        onChange={(e) => setEditedContent({
-                          ...editedContent,
-                          contact: { ...editedContent.contact, email: e.target.value }
+                        value={currentContent.contact.email}
+                        onChange={(e) => setCurrentContent({
+                          ...currentContent,
+                          contact: { ...currentContent.contact, email: e.target.value }
                         })}
                         className="bg-muted"
                       />
                     </div>
                     <div>
-                      <label className="font-body text-sm text-muted-foreground block mb-2">Локація</label>
+                      <label className="font-body text-sm text-muted-foreground block mb-2">
+                        {editLanguage === "uk" ? "Локація" : "Location"}
+                      </label>
                       <Input
-                        value={editedContent.contact.location}
-                        onChange={(e) => setEditedContent({
-                          ...editedContent,
-                          contact: { ...editedContent.contact, location: e.target.value }
+                        value={currentContent.contact.location}
+                        onChange={(e) => setCurrentContent({
+                          ...currentContent,
+                          contact: { ...currentContent.contact, location: e.target.value }
                         })}
                         className="bg-muted"
                       />
                     </div>
                     <div>
-                      <label className="font-body text-sm text-muted-foreground block mb-2">Заголовок блоку співпраці</label>
+                      <label className="font-body text-sm text-muted-foreground block mb-2">
+                        {editLanguage === "uk" ? "Заголовок блоку співпраці" : "Collaboration Section Title"}
+                      </label>
                       <Input
-                        value={editedContent.contact.collaborationTitle}
-                        onChange={(e) => setEditedContent({
-                          ...editedContent,
-                          contact: { ...editedContent.contact, collaborationTitle: e.target.value }
+                        value={currentContent.contact.collaborationTitle}
+                        onChange={(e) => setCurrentContent({
+                          ...currentContent,
+                          contact: { ...currentContent.contact, collaborationTitle: e.target.value }
                         })}
                         className="bg-muted"
                       />
                     </div>
                     <div>
-                      <label className="font-body text-sm text-muted-foreground block mb-2">Текст блоку співпраці</label>
+                      <label className="font-body text-sm text-muted-foreground block mb-2">
+                        {editLanguage === "uk" ? "Текст блоку співпраці" : "Collaboration Section Text"}
+                      </label>
                       <Textarea
-                        value={editedContent.contact.collaborationText}
-                        onChange={(e) => setEditedContent({
-                          ...editedContent,
-                          contact: { ...editedContent.contact, collaborationText: e.target.value }
+                        value={currentContent.contact.collaborationText}
+                        onChange={(e) => setCurrentContent({
+                          ...currentContent,
+                          contact: { ...currentContent.contact, collaborationText: e.target.value }
                         })}
                         className="bg-muted"
                         rows={3}
@@ -602,22 +699,24 @@ const Admin = () => {
               {activeSection === "export" && (
                 <div className="space-y-8">
                   <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-                    Експорт та розгортання
+                    {editLanguage === "uk" ? "Експорт та розгортання" : "Export & Deployment"}
                   </h2>
 
                   {/* Export/Import Section */}
                   <div className="glass-card rounded-xl p-6 border border-neon-cyan/30">
                     <h3 className="font-display text-lg font-bold text-neon-cyan mb-4 flex items-center gap-2">
                       <Download className="w-5 h-5" />
-                      Бекап контенту
+                      {editLanguage === "uk" ? "Бекап контенту" : "Content Backup"}
                     </h3>
                     <p className="font-body text-muted-foreground mb-4">
-                      Експортуйте весь контент сайту у JSON файл для резервного копіювання або перенесення на інший хостинг.
+                      {editLanguage === "uk" 
+                        ? "Експортуйте весь контент сайту (обидві мови) у JSON файл для резервного копіювання."
+                        : "Export all site content (both languages) to a JSON file for backup."}
                     </p>
                     <div className="flex flex-wrap gap-4">
                       <Button variant="neonCyan" onClick={handleExportContent}>
                         <Download className="w-4 h-4 mr-2" />
-                        Експортувати контент
+                        {editLanguage === "uk" ? "Експортувати контент" : "Export Content"}
                       </Button>
                       <div>
                         <input
@@ -631,7 +730,7 @@ const Admin = () => {
                           <Button variant="outline" asChild>
                             <span className="cursor-pointer">
                               <Upload className="w-4 h-4 mr-2" />
-                              Імпортувати контент
+                              {editLanguage === "uk" ? "Імпортувати контент" : "Import Content"}
                             </span>
                           </Button>
                         </label>
@@ -643,246 +742,33 @@ const Admin = () => {
                   <div className="glass-card rounded-xl p-6 border border-neon-green/30">
                     <h3 className="font-display text-lg font-bold text-neon-green mb-4 flex items-center gap-2">
                       <Archive className="w-5 h-5" />
-                      Завантаження архіву сайту
+                      {editLanguage === "uk" ? "Завантаження архіву сайту" : "Download Site Archive"}
                     </h3>
                     <p className="font-body text-muted-foreground mb-4">
-                      Для отримання повного архіву сайту (всі файли, структура, код) скористайтесь GitHub:
+                      {editLanguage === "uk" 
+                        ? "Для отримання повного архіву сайту скористайтесь GitHub:"
+                        : "To get the full site archive, use GitHub:"}
                     </p>
                     <ol className="font-body text-muted-foreground text-sm space-y-3 mb-4 list-decimal list-inside">
-                      <li>Відкрийте <strong className="text-foreground">налаштування проекту</strong> в Lovable (іконка шестерні)</li>
-                      <li>Перейдіть у вкладку <strong className="text-foreground">GitHub</strong></li>
-                      <li>Якщо ще не підключено — натисніть <strong className="text-neon-cyan">"Connect to GitHub"</strong></li>
-                      <li>Після підключення відкрийте ваш репозиторій на GitHub</li>
-                      <li>Натисніть зелену кнопку <strong className="text-neon-green">Code</strong> → <strong className="text-neon-green">Download ZIP</strong></li>
+                      <li>{editLanguage === "uk" ? "Відкрийте налаштування проекту в Lovable" : "Open project settings in Lovable"}</li>
+                      <li>{editLanguage === "uk" ? "Перейдіть у вкладку GitHub" : "Go to GitHub tab"}</li>
+                      <li>{editLanguage === "uk" ? 'Натисніть "Connect to GitHub"' : 'Click "Connect to GitHub"'}</li>
+                      <li>{editLanguage === "uk" ? "Відкрийте репозиторій на GitHub" : "Open repository on GitHub"}</li>
+                      <li>{editLanguage === "uk" ? "Натисніть Code → Download ZIP" : "Click Code → Download ZIP"}</li>
                     </ol>
-                    <div className="bg-muted/50 rounded-lg p-4 border border-border">
-                      <p className="font-body text-sm text-muted-foreground">
-                        <strong className="text-neon-cyan">Альтернатива через Git:</strong>
-                      </p>
-                      <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan mt-2">
-                        git clone https://github.com/ваш-username/ваш-репозиторій.git
-                      </code>
-                    </div>
                   </div>
 
-                  {/* Deployment Instructions */}
-                  <div className="glass-card rounded-xl p-6 border border-neon-magenta/30">
-                    <h3 className="font-display text-lg font-bold text-neon-magenta mb-4 flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
-                      Інструкція з розгортання архіву
-                    </h3>
-                    
-                    <div className="space-y-6">
-                      {/* Step 1 */}
-                      <div className="border-l-2 border-neon-cyan/50 pl-4">
-                        <h4 className="font-display font-bold text-foreground mb-2">
-                          1. Розпакування архіву
-                        </h4>
-                        <p className="font-body text-muted-foreground text-sm mb-2">
-                          Розпакуйте завантажений ZIP-архів у будь-яку папку на вашому комп'ютері.
-                        </p>
-                        <p className="font-body text-muted-foreground text-sm">
-                          Структура проекту:
-                        </p>
-                        <pre className="bg-muted p-3 rounded text-xs font-mono text-neon-cyan mt-2 overflow-x-auto">
-{`📁 your-site/
-├── 📁 public/          # Статичні файли
-├── 📁 src/             # Вихідний код
-│   ├── 📁 components/  # React компоненти
-│   ├── 📁 pages/       # Сторінки
-│   ├── 📁 contexts/    # Контексти
-│   └── 📁 hooks/       # Хуки
-├── index.html          # Головний HTML
-├── package.json        # Залежності
-├── vite.config.ts      # Налаштування Vite
-└── tailwind.config.ts  # Налаштування Tailwind`}
-                        </pre>
-                      </div>
-
-                      {/* Step 2 */}
-                      <div className="border-l-2 border-neon-cyan/50 pl-4">
-                        <h4 className="font-display font-bold text-foreground mb-2">
-                          2. Встановлення Node.js та залежностей
-                        </h4>
-                        <p className="font-body text-muted-foreground text-sm mb-2">
-                          Переконайтесь, що на вашому комп'ютері встановлено <strong className="text-foreground">Node.js 18+</strong>. 
-                          Завантажте з <a href="https://nodejs.org" target="_blank" rel="noopener" className="text-neon-cyan hover:underline">nodejs.org</a>
-                        </p>
-                        <p className="font-body text-muted-foreground text-sm mb-2">
-                          Відкрийте термінал у папці проекту та виконайте:
-                        </p>
-                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
-                          npm install
-                        </code>
-                      </div>
-
-                      {/* Step 3 */}
-                      <div className="border-l-2 border-neon-cyan/50 pl-4">
-                        <h4 className="font-display font-bold text-foreground mb-2">
-                          3. Локальний запуск для тестування
-                        </h4>
-                        <p className="font-body text-muted-foreground text-sm mb-2">
-                          Для перевірки роботи сайту локально:
-                        </p>
-                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
-                          npm run dev
-                        </code>
-                        <p className="font-body text-muted-foreground text-sm mt-2">
-                          Сайт буде доступний за адресою <code className="text-neon-cyan">http://localhost:5173</code>
-                        </p>
-                      </div>
-
-                      {/* Step 4 */}
-                      <div className="border-l-2 border-neon-cyan/50 pl-4">
-                        <h4 className="font-display font-bold text-foreground mb-2">
-                          4. Збірка для production
-                        </h4>
-                        <p className="font-body text-muted-foreground text-sm mb-2">
-                          Створіть оптимізовану збірку:
-                        </p>
-                        <code className="block bg-muted p-3 rounded text-sm font-mono text-neon-cyan">
-                          npm run build
-                        </code>
-                        <p className="font-body text-muted-foreground text-sm mt-2">
-                          Готовий сайт буде у папці <code className="text-neon-cyan">dist/</code> — ці файли завантажуйте на хостинг
-                        </p>
-                      </div>
-
-                      {/* Step 5 */}
-                      <div className="border-l-2 border-neon-cyan/50 pl-4">
-                        <h4 className="font-display font-bold text-foreground mb-2">
-                          5. Варіанти хостингу
-                        </h4>
-                        <div className="space-y-3">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="w-full justify-start">
-                                <Info className="w-4 h-4 mr-2" />
-                                Netlify (рекомендовано)
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle className="font-display text-neon-cyan">Розгортання на Netlify</DialogTitle>
-                                <DialogDescription className="font-body">
-                                  <ol className="list-decimal list-inside space-y-2 mt-4">
-                                    <li>Зареєструйтесь на netlify.com</li>
-                                    <li>Натисніть "Add new site" → "Deploy manually"</li>
-                                    <li>Перетягніть папку <code className="text-neon-cyan">dist/</code> у вікно</li>
-                                    <li>Або підключіть GitHub репозиторій для автоматичного деплою</li>
-                                    <li>Налаштуйте власний домен у розділі "Domain settings"</li>
-                                  </ol>
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="w-full justify-start">
-                                <Info className="w-4 h-4 mr-2" />
-                                Vercel
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle className="font-display text-neon-cyan">Розгортання на Vercel</DialogTitle>
-                                <DialogDescription className="font-body">
-                                  <ol className="list-decimal list-inside space-y-2 mt-4">
-                                    <li>Зареєструйтесь на vercel.com</li>
-                                    <li>Імпортуйте проект з GitHub</li>
-                                    <li>Виберіть Framework: Vite</li>
-                                    <li>Натисніть "Deploy"</li>
-                                    <li>Налаштуйте власний домен у налаштуваннях проекту</li>
-                                  </ol>
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="w-full justify-start">
-                                <Info className="w-4 h-4 mr-2" />
-                                GitHub Pages
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle className="font-display text-neon-cyan">Розгортання на GitHub Pages</DialogTitle>
-                                <DialogDescription className="font-body">
-                                  <ol className="list-decimal list-inside space-y-2 mt-4">
-                                    <li>Додайте у vite.config.ts: <code className="text-neon-cyan">base: '/repo-name/'</code></li>
-                                    <li>Встановіть: <code className="text-neon-cyan">npm install -D gh-pages</code></li>
-                                    <li>Додайте скрипт у package.json: <code className="text-neon-cyan">"deploy": "gh-pages -d dist"</code></li>
-                                    <li>Виконайте: <code className="text-neon-cyan">npm run build && npm run deploy</code></li>
-                                    <li>Увімкніть Pages у налаштуваннях репозиторію</li>
-                                  </ol>
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="w-full justify-start">
-                                <Info className="w-4 h-4 mr-2" />
-                                VPS / Власний сервер
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle className="font-display text-neon-cyan">Розгортання на VPS</DialogTitle>
-                                <DialogDescription className="font-body">
-                                  <ol className="list-decimal list-inside space-y-2 mt-4">
-                                    <li>Скопіюйте вміст папки <code className="text-neon-cyan">dist/</code> на сервер</li>
-                                    <li>Налаштуйте Nginx або Apache для статичного хостингу</li>
-                                    <li>Приклад конфігу Nginx:</li>
-                                    <pre className="bg-muted p-2 rounded text-xs mt-2 overflow-x-auto">
-{`server {
-  listen 80;
-  server_name your-domain.com;
-  root /var/www/your-site;
-  index index.html;
-  
-  location / {
-    try_files $uri $uri/ /index.html;
-  }
-}`}
-                                    </pre>
-                                    <li>Налаштуйте SSL через Let's Encrypt</li>
-                                  </ol>
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      </div>
-
-                      {/* Step 6 */}
-                      <div className="border-l-2 border-neon-cyan/50 pl-4">
-                        <h4 className="font-display font-bold text-foreground mb-2">
-                          6. Відновлення контенту
-                        </h4>
-                        <p className="font-body text-muted-foreground text-sm">
-                          Після розгортання увійдіть в адмін-панель (<code className="text-neon-cyan">/login</code>) і імпортуйте раніше збережений JSON-файл з контентом.
-                        </p>
-                      </div>
-
-                      {/* Important Note */}
-                      <div className="bg-neon-magenta/10 border border-neon-magenta/30 rounded-lg p-4 mt-6">
-                        <h4 className="font-display font-bold text-neon-magenta mb-2 flex items-center gap-2">
-                          <Info className="w-4 h-4" />
-                          Важливо
-                        </h4>
-                        <ul className="font-body text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                          <li>Контент зберігається у localStorage браузера</li>
-                          <li>Регулярно робіть бекапи через функцію експорту</li>
-                          <li>При очищенні кешу браузера контент буде скинуто</li>
-                          <li>Для production рекомендуємо використовувати базу даних</li>
-                        </ul>
-                      </div>
-                    </div>
+                  {/* Important Note */}
+                  <div className="bg-neon-magenta/10 border border-neon-magenta/30 rounded-lg p-4">
+                    <h4 className="font-display font-bold text-neon-magenta mb-2 flex items-center gap-2">
+                      <Info className="w-4 h-4" />
+                      {editLanguage === "uk" ? "Важливо" : "Important"}
+                    </h4>
+                    <ul className="font-body text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      <li>{editLanguage === "uk" ? "Контент зберігається у localStorage браузера" : "Content is stored in browser localStorage"}</li>
+                      <li>{editLanguage === "uk" ? "Регулярно робіть бекапи через функцію експорту" : "Regularly backup using the export function"}</li>
+                      <li>{editLanguage === "uk" ? "При очищенні кешу браузера контент буде скинуто" : "Clearing browser cache will reset content"}</li>
+                    </ul>
                   </div>
                 </div>
               )}
@@ -897,17 +783,18 @@ const Admin = () => {
 // About Section Editor Component
 interface AboutSectionEditorProps {
   editedContent: SiteContent;
-  setEditedContent: React.Dispatch<React.SetStateAction<SiteContent>>;
+  setEditedContent: (content: SiteContent) => void;
+  editLanguage: EditLanguage;
 }
 
-const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEditorProps) => {
+const AboutSectionEditor = ({ editedContent, setEditedContent, editLanguage }: AboutSectionEditorProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Файл занадто великий. Максимум 5MB.");
+        alert(editLanguage === "uk" ? "Файл занадто великий. Максимум 5MB." : "File too large. Maximum 5MB.");
         return;
       }
       const reader = new FileReader();
@@ -931,18 +818,20 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
   return (
     <div className="space-y-6">
       <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-        Про мене
+        {editLanguage === "uk" ? "Про мене" : "About Me"}
       </h2>
 
       {/* Profile Photo Upload */}
       <div>
-        <label className="font-body text-sm text-muted-foreground block mb-2">Фото профілю</label>
+        <label className="font-body text-sm text-muted-foreground block mb-2">
+          {editLanguage === "uk" ? "Фото профілю" : "Profile Photo"}
+        </label>
         <div className="flex items-start gap-4">
           {editedContent.about.profilePhoto ? (
             <div className="relative">
               <img 
                 src={editedContent.about.profilePhoto} 
-                alt="Фото профілю" 
+                alt={editLanguage === "uk" ? "Фото профілю" : "Profile photo"} 
                 className="w-32 h-32 object-cover rounded-full border-2 border-neon-cyan/50"
               />
               <button
@@ -958,7 +847,9 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
               className="w-32 h-32 border-2 border-dashed border-border rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-neon-cyan/50 transition-colors"
             >
               <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-              <span className="font-body text-xs text-muted-foreground text-center">Завантажити</span>
+              <span className="font-body text-xs text-muted-foreground text-center">
+                {editLanguage === "uk" ? "Завантажити" : "Upload"}
+              </span>
             </div>
           )}
           <input
@@ -975,17 +866,19 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload className="w-4 h-4 mr-2" />
-              Змінити фото
+              {editLanguage === "uk" ? "Змінити фото" : "Change photo"}
             </Button>
           )}
         </div>
         <p className="font-body text-xs text-muted-foreground mt-2">
-          Рекомендований розмір: 500x500px. Максимум 5MB.
+          {editLanguage === "uk" ? "Рекомендований розмір: 500x500px. Максимум 5MB." : "Recommended size: 500x500px. Maximum 5MB."}
         </p>
       </div>
 
       <div>
-        <label className="font-body text-sm text-muted-foreground block mb-2">Опис</label>
+        <label className="font-body text-sm text-muted-foreground block mb-2">
+          {editLanguage === "uk" ? "Опис" : "Description"}
+        </label>
         <Textarea
           value={editedContent.about.description}
           onChange={(e) => setEditedContent({
@@ -998,11 +891,13 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
       </div>
 
       <div>
-        <label className="font-body text-sm text-muted-foreground block mb-4">Персональна інформація</label>
+        <label className="font-body text-sm text-muted-foreground block mb-4">
+          {editLanguage === "uk" ? "Персональна інформація" : "Personal Information"}
+        </label>
         {editedContent.about.personalInfo.map((info, index) => (
           <div key={index} className="flex gap-4 mb-3">
             <Input
-              placeholder="Мітка"
+              placeholder={editLanguage === "uk" ? "Мітка" : "Label"}
               value={info.label}
               onChange={(e) => {
                 const newInfo = [...editedContent.about.personalInfo];
@@ -1015,7 +910,7 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
               className="bg-muted w-1/3"
             />
             <Input
-              placeholder="Значення"
+              placeholder={editLanguage === "uk" ? "Значення" : "Value"}
               value={info.value}
               onChange={(e) => {
                 const newInfo = [...editedContent.about.personalInfo];
@@ -1032,17 +927,54 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
       </div>
 
       <div>
-        <label className="font-body text-sm text-muted-foreground block mb-2">
-          Навички (через кому)
+        <label className="font-body text-sm text-muted-foreground block mb-4">
+          {editLanguage === "uk" ? "Навички" : "Skills"}
         </label>
-        <Input
-          value={editedContent.about.skills.join(", ")}
-          onChange={(e) => setEditedContent({
-            ...editedContent,
-            about: { ...editedContent.about, skills: e.target.value.split(",").map(s => s.trim()) }
-          })}
-          className="bg-muted"
-        />
+        <div className="flex flex-wrap gap-2 mb-3">
+          {editedContent.about.skills.map((skill, index) => (
+            <div key={index} className="flex items-center gap-1 bg-muted px-3 py-1 rounded-full">
+              <Input
+                value={skill}
+                onChange={(e) => {
+                  const newSkills = [...editedContent.about.skills];
+                  newSkills[index] = e.target.value;
+                  setEditedContent({
+                    ...editedContent,
+                    about: { ...editedContent.about, skills: newSkills }
+                  });
+                }}
+                className="bg-transparent border-0 p-0 h-auto text-sm w-auto min-w-[100px]"
+              />
+              <button
+                onClick={() => {
+                  const newSkills = editedContent.about.skills.filter((_, i) => i !== index);
+                  setEditedContent({
+                    ...editedContent,
+                    about: { ...editedContent.about, skills: newSkills }
+                  });
+                }}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setEditedContent({
+              ...editedContent,
+              about: { 
+                ...editedContent.about, 
+                skills: [...editedContent.about.skills, editLanguage === "uk" ? "Нова навичка" : "New Skill"] 
+              }
+            });
+          }}
+        >
+          + {editLanguage === "uk" ? "Додати навичку" : "Add Skill"}
+        </Button>
       </div>
     </div>
   );
@@ -1052,76 +984,125 @@ const AboutSectionEditor = ({ editedContent, setEditedContent }: AboutSectionEdi
 interface ExperienceEditorProps {
   experience: Experience;
   index: number;
+  editLanguage: EditLanguage;
   onChange: (updated: Experience) => void;
   onDelete: () => void;
 }
 
-const ExperienceEditor = ({ experience, index, onChange, onDelete }: ExperienceEditorProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const ExperienceEditor = ({ experience, index, editLanguage, onChange, onDelete }: ExperienceEditorProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="border border-border/50 rounded-lg overflow-hidden mb-4">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+      <div 
+        className="flex items-center justify-between p-4 bg-muted/30 cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="text-left">
-          <div className="font-display font-bold text-foreground">{experience.company}</div>
-          <div className="font-body text-sm text-muted-foreground">{experience.period}</div>
-        </div>
-        <ChevronDown className={cn("w-5 h-5 transition-transform", isOpen && "rotate-180")} />
-      </button>
-
-      {isOpen && (
-        <div className="p-4 border-t border-border/50 space-y-4">
-          <div className="flex justify-end">
-            <Button variant="ghost" size="sm" className="text-destructive" onClick={onDelete}>
-              Видалити запис
-            </Button>
+        <div className="flex items-center gap-3">
+          <ChevronDown className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-180")} />
+          <div>
+            <h3 className="font-display font-bold text-foreground">{experience.company}</h3>
+            <p className="font-body text-sm text-muted-foreground">{experience.title} • {experience.period}</p>
           </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          {editLanguage === "uk" ? "Видалити" : "Delete"}
+        </Button>
+      </div>
 
-          <Input
-            placeholder="Компанія"
-            value={experience.company}
-            onChange={(e) => onChange({ ...experience, company: e.target.value })}
-            className="bg-muted"
-          />
-
+      {isExpanded && (
+        <div className="p-4 space-y-4">
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="font-body text-sm text-muted-foreground block mb-2">
+                {editLanguage === "uk" ? "Компанія" : "Company"}
+              </label>
+              <Input
+                value={experience.company}
+                onChange={(e) => onChange({ ...experience, company: e.target.value })}
+                className="bg-muted"
+              />
+            </div>
+            <div>
+              <label className="font-body text-sm text-muted-foreground block mb-2">
+                {editLanguage === "uk" ? "Період" : "Period"}
+              </label>
+              <Input
+                value={experience.period}
+                onChange={(e) => onChange({ ...experience, period: e.target.value })}
+                className="bg-muted"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="font-body text-sm text-muted-foreground block mb-2">
+              {editLanguage === "uk" ? "Посада" : "Title"}
+            </label>
             <Input
-              placeholder="Період"
-              value={experience.period}
-              onChange={(e) => onChange({ ...experience, period: e.target.value })}
-              className="bg-muted"
-            />
-            <Input
-              placeholder="Посада"
               value={experience.title}
               onChange={(e) => onChange({ ...experience, title: e.target.value })}
               className="bg-muted"
             />
           </div>
-
-          <Input
-            placeholder="Посилання (опціонально)"
-            value={experience.link || ""}
-            onChange={(e) => onChange({ ...experience, link: e.target.value || undefined })}
-            className="bg-muted"
-          />
-
           <div>
             <label className="font-body text-sm text-muted-foreground block mb-2">
-              Обов'язки (кожен з нового рядка)
+              {editLanguage === "uk" ? "Посилання (необов'язково)" : "Link (optional)"}
             </label>
-            <Textarea
-              value={experience.responsibilities.join("\n")}
-              onChange={(e) => onChange({
-                ...experience,
-                responsibilities: e.target.value.split("\n").filter(r => r.trim())
-              })}
+            <Input
+              value={experience.link || ""}
+              onChange={(e) => onChange({ ...experience, link: e.target.value || undefined })}
+              placeholder="https://..."
               className="bg-muted"
-              rows={6}
             />
+          </div>
+          <div>
+            <label className="font-body text-sm text-muted-foreground block mb-2">
+              {editLanguage === "uk" ? "Обов'язки" : "Responsibilities"}
+            </label>
+            {experience.responsibilities.map((resp, respIndex) => (
+              <div key={respIndex} className="flex gap-2 mb-2">
+                <Input
+                  value={resp}
+                  onChange={(e) => {
+                    const newResps = [...experience.responsibilities];
+                    newResps[respIndex] = e.target.value;
+                    onChange({ ...experience, responsibilities: newResps });
+                  }}
+                  className="bg-muted flex-1"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive"
+                  onClick={() => {
+                    const newResps = experience.responsibilities.filter((_, i) => i !== respIndex);
+                    onChange({ ...experience, responsibilities: newResps });
+                  }}
+                >
+                  ×
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onChange({
+                  ...experience,
+                  responsibilities: [...experience.responsibilities, ""]
+                });
+              }}
+            >
+              + {editLanguage === "uk" ? "Додати обов'язок" : "Add Responsibility"}
+            </Button>
           </div>
         </div>
       )}
