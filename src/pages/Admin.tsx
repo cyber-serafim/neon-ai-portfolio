@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  PreviewHeroSection,
+  PreviewAboutSection,
+  PreviewExperienceSection,
+  PreviewEducationSection,
+  PreviewContactSection,
+} from "@/components/admin/PreviewSections";
 
 type EditLanguage = "uk" | "en";
 
@@ -27,6 +35,7 @@ const Admin = () => {
   const [editLanguage, setEditLanguage] = useState<EditLanguage>("uk");
   const [editedContent, setEditedContent] = useState<BilingualContent>(bilingualContent);
   const [activeSection, setActiveSection] = useState<string>("hero");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Get current language content for editing
   const currentContent = editedContent[editLanguage];
@@ -172,6 +181,44 @@ const Admin = () => {
               <Home className="w-4 h-4 mr-2" />
               {editLanguage === "uk" ? "На сайт" : "View Site"}
             </Button>
+            <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Eye className="w-4 h-4 mr-2" />
+                  {editLanguage === "uk" ? "Попередній перегляд" : "Preview"}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-5xl max-h-[90vh] p-0">
+                <DialogHeader className="p-6 pb-0">
+                  <DialogTitle className="font-display text-xl">
+                    {editLanguage === "uk" ? "Попередній перегляд змін" : "Preview Changes"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {editLanguage === "uk" 
+                      ? "Перегляд контенту українською мовою"
+                      : "Previewing English content"}
+                  </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[calc(90vh-120px)]">
+                  <div className="bg-background rounded-lg overflow-hidden">
+                    <PreviewHeroSection content={currentContent} language={editLanguage} />
+                    <PreviewAboutSection content={currentContent} language={editLanguage} />
+                    <PreviewExperienceSection content={currentContent} language={editLanguage} />
+                    <PreviewEducationSection content={currentContent} language={editLanguage} />
+                    <PreviewContactSection content={currentContent} language={editLanguage} />
+                  </div>
+                </ScrollArea>
+                <div className="p-4 border-t border-border flex justify-end gap-3">
+                  <Button variant="ghost" onClick={() => setPreviewOpen(false)}>
+                    {editLanguage === "uk" ? "Закрити" : "Close"}
+                  </Button>
+                  <Button variant="neonCyan" onClick={() => { handleSave(); setPreviewOpen(false); }}>
+                    <Save className="w-4 h-4 mr-2" />
+                    {editLanguage === "uk" ? "Зберегти зміни" : "Save Changes"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button variant="neonCyan" size="sm" onClick={handleSave}>
               <Save className="w-4 h-4 mr-2" />
               {editLanguage === "uk" ? "Зберегти" : "Save"}
