@@ -5,14 +5,20 @@ import { SiteContent } from "@/contexts/ContentContext";
 
 export const useTranslatedContent = (): SiteContent => {
   const { language } = useLanguage();
-  const { content } = useContent();
+  const { getContent, bilingualContent } = useContent();
   
-  // Check if content was customized (different from default Ukrainian)
-  const isCustomContent = JSON.stringify(content) !== JSON.stringify(contentTranslations.uk);
+  // Get content for the current language
+  const currentContent = getContent(language);
   
-  // If content was customized, use it; otherwise use translated content
+  // Get default content for the current language
+  const defaultContent = contentTranslations[language];
+  
+  // Check if content was customized (different from default for current language)
+  const isCustomContent = JSON.stringify(currentContent) !== JSON.stringify(defaultContent);
+  
+  // If content was customized, use stored content; otherwise use default translations
   if (isCustomContent) {
-    return content;
+    return currentContent;
   }
   
   return contentTranslations[language];
