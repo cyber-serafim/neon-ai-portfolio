@@ -369,6 +369,8 @@ const Admin = () => {
                   editedContent={currentContent}
                   setEditedContent={setCurrentContent}
                   editLanguage={editLanguage}
+                  fullBilingualContent={editedContent}
+                  setFullBilingualContent={setEditedContent}
                 />
               )}
 
@@ -832,9 +834,11 @@ interface AboutSectionEditorProps {
   editedContent: SiteContent;
   setEditedContent: (content: SiteContent) => void;
   editLanguage: EditLanguage;
+  fullBilingualContent: BilingualContent;
+  setFullBilingualContent: (content: BilingualContent) => void;
 }
 
-const AboutSectionEditor = ({ editedContent, setEditedContent, editLanguage }: AboutSectionEditorProps) => {
+const AboutSectionEditor = ({ editedContent, setEditedContent, editLanguage, fullBilingualContent, setFullBilingualContent }: AboutSectionEditorProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -846,9 +850,17 @@ const AboutSectionEditor = ({ editedContent, setEditedContent, editLanguage }: A
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setEditedContent({
-          ...editedContent,
-          about: { ...editedContent.about, profilePhoto: reader.result as string }
+        const photoBase64 = reader.result as string;
+        // Save photo to BOTH languages since it's a visual asset, not translatable content
+        setFullBilingualContent({
+          uk: {
+            ...fullBilingualContent.uk,
+            about: { ...fullBilingualContent.uk.about, profilePhoto: photoBase64 }
+          },
+          en: {
+            ...fullBilingualContent.en,
+            about: { ...fullBilingualContent.en.about, profilePhoto: photoBase64 }
+          }
         });
       };
       reader.readAsDataURL(file);
@@ -856,9 +868,16 @@ const AboutSectionEditor = ({ editedContent, setEditedContent, editLanguage }: A
   };
 
   const handleRemovePhoto = () => {
-    setEditedContent({
-      ...editedContent,
-      about: { ...editedContent.about, profilePhoto: undefined }
+    // Remove photo from BOTH languages
+    setFullBilingualContent({
+      uk: {
+        ...fullBilingualContent.uk,
+        about: { ...fullBilingualContent.uk.about, profilePhoto: undefined }
+      },
+      en: {
+        ...fullBilingualContent.en,
+        about: { ...fullBilingualContent.en.about, profilePhoto: undefined }
+      }
     });
   };
 
