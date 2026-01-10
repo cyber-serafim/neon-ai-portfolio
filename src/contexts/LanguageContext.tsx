@@ -60,6 +60,8 @@ interface Translations {
     toast: {
       title: string;
       description: string;
+      errorTitle: string;
+      errorDescription: string;
     };
   };
   footer: {
@@ -128,6 +130,8 @@ const translations: Record<Language, Translations> = {
       toast: {
         title: "Повідомлення надіслано!",
         description: "Дякую за звернення. Я зв'яжуся з вами найближчим часом.",
+        errorTitle: "Помилка",
+        errorDescription: "Не вдалося надіслати повідомлення. Спробуйте ще раз.",
       },
     },
     footer: {
@@ -194,6 +198,8 @@ const translations: Record<Language, Translations> = {
       toast: {
         title: "Message sent!",
         description: "Thank you for reaching out. I will contact you soon.",
+        errorTitle: "Error",
+        errorDescription: "Failed to send message. Please try again.",
       },
     },
     footer: {

@@ -6,11 +6,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
+import { useEmailSettings } from "@/hooks/useEmailSettings";
+import emailjs from "@emailjs/browser";
 
 export const ContactSection = () => {
   const content = useTranslatedContent();
   const { contact } = content;
   const { t } = useLanguage();
+  const { settings, isConfigured } = useEmailSettings();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -34,21 +37,46 @@ export const ContactSection = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      if (isConfigured) {
+        // Send email via EmailJS
+        await emailjs.send(
+          settings.serviceId,
+          settings.templateId,
+          {
+            from_name: formData.name,
+            from_email: formData.email,
+            message: formData.message,
+            to_email: settings.recipientEmail || contact.email,
+          },
+          settings.publicKey
+        );
+      } else {
+        // Fallback: just simulate submission if not configured
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-      title: t.contact.toast.title,
-      description: t.contact.toast.description,
-    });
+      setIsSubmitted(true);
+      toast({
+        title: t.contact.toast.title,
+        description: t.contact.toast.description,
+      });
 
-    // Reset form after delay
-    setTimeout(() => {
-      setFormData({ name: "", email: "", message: "" });
-      setIsSubmitted(false);
-    }, 3000);
+      // Reset form after delay
+      setTimeout(() => {
+        setFormData({ name: "", email: "", message: "" });
+        setIsSubmitted(false);
+      }, 3000);
+    } catch (error: any) {
+      console.error("Email send error:", error);
+      toast({
+        title: t.contact.toast.errorTitle || "Error",
+        description: error?.text || t.contact.toast.errorDescription || "Failed to send message",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
