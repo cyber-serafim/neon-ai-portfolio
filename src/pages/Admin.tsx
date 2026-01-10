@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +24,7 @@ import {
   PreviewEducationSection,
   PreviewContactSection,
 } from "@/components/admin/PreviewSections";
+import { EmailSettingsEditor } from "@/components/admin/EmailSettingsEditor";
 
 type EditLanguage = "uk" | "en";
 
@@ -85,6 +86,7 @@ const Admin = () => {
     { id: "certificates", label: editLanguage === "uk" ? "Сертифікати" : "Certificates" },
     { id: "languages", label: editLanguage === "uk" ? "Мови" : "Languages" },
     { id: "contact", label: editLanguage === "uk" ? "Контакти" : "Contacts" },
+    { id: "email", label: editLanguage === "uk" ? "Налаштування пошти" : "Email Settings" },
     { id: "export", label: editLanguage === "uk" ? "Експорт та розгортання" : "Export & Deploy" },
   ];
 
@@ -742,6 +744,11 @@ const Admin = () => {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* Email Settings Section */}
+              {activeSection === "email" && (
+                <EmailSettingsEditor editLanguage={editLanguage} />
               )}
 
               {/* Export & Deploy Section */}
