@@ -18,9 +18,9 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
         { label: "Ім'я", value: "Антон Падура" },
         { label: "Місто", value: "Київ, Україна" },
         { label: "Телефон", value: "+380958777997" },
-        { label: "Email", value: "padura@proton.me" },
+        { label: "Email", value: "anton.padura@proton.me" },
       ],
-      skills: ["Інформаційна безпека", "Системне адміністрування", "IT-менеджмент", "DevOps", "Мережеві технології"],
+      skills: ["Інформаційна безпека", "Системне адміністрування", "IT-менеджмент", "DevOps", "Мережеві технології", "IP телефонія", "Віртуалізація"],
     },
     experiences: [
       {
@@ -37,9 +37,10 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Скриптинг (Python, PowerShell, bash)",
           "Розгортання RemoteApp для Magnet Forensics",
         ],
+        link: "https://digitalforensics.com",
       },
       {
-        company: 'ТОВ "ЛЮКСВЕНРІТЕЙЛ"',
+        company: 'ТОВ "ЛЮКСВЕН РІТЕЙЛ"',
         period: "06.2016 – 08.2021",
         title: "IT Manager / Security Lead",
         responsibilities: [
@@ -51,13 +52,15 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Системи відеоспостереження",
           "Розміщення серверів у Європі",
         ],
-        link: "https://flirtandtan.com/",
+        link: "https://flirtandtan.com",
       },
       {
         company: 'ПАТ "КБ "ГЕФЕСТ""',
         period: "08.2013 – 03.2015",
-        title: "System Administrator",
+        title: "IT Manager",
         responsibilities: [
+          "Керування та координація роботи ІТ-відділу",
+          "Підготовка проекту ІТ-інфраструктури для відкриття нових відділень банку",
           "Впровадження посилення GSM",
           "Адміністрування відеоспостереження та контролю доступу",
           "Корпоративна телефонія на Asterisk",
@@ -65,11 +68,12 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Робота з Cisco, D-Link, MikroTik",
           "Адміністрування VDS та Unix/Linux",
         ],
+        link: "https://bankgefest.com.ua",
       },
       {
         company: 'AT "КБ "СОЮЗ"',
         period: "06.2010 – 06.2016",
-        title: "IT Specialist",
+        title: "Заступник начальника відділу комунікації та зв'язку",
         responsibilities: [
           "Впровадження гібридної IP-телефонії (Asterisk, Tadiran Telecom, Panasonic)",
           "DLP на DeviceLock",
@@ -77,6 +81,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Адміністрування ATC",
           "Скриптинг",
         ],
+         link: "https://banksoyuz.com.ua",
       },
       {
         company: "Heaven Group Multimedia Co. Ltd.",
@@ -89,9 +94,10 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Адміністрування HP BladeSystem та StorageWorks",
           "Поштовий сервер",
         ],
+        link: "https://heaventv.tv",
       },
       {
-        company: 'ТОВ "ЛАКІНЕТ"',
+        company: 'ТОВ "ЛАКІ НЕТ ЮА"',
         period: "01.2008 – 08.2009",
         title: "Technical Support Engineer",
         responsibilities: [
@@ -99,6 +105,8 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Технічна підтримка",
           "Документація",
         ],
+        link: "https://lucky.net",
+       
       },
     ],
     education: [
@@ -131,7 +139,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
     ],
     contact: {
       phone: "+380958777997",
-      email: "padura@proton.me",
+      email: "anton.padura@proton.me",
       location: "Київ, Україна",
       collaborationTitle: "Готовий до співпраці?",
       collaborationText: "Понад 15 років досвіду в IT-безпеці та адмініструванні систем. Працюю з компаніями різного масштабу — від стартапів до корпорацій.",
@@ -154,7 +162,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
         { label: "Name", value: "Anton Padura" },
         { label: "City", value: "Kyiv, Ukraine" },
         { label: "Phone", value: "+380958777997" },
-        { label: "Email", value: "padura@proton.me" },
+        { label: "Email", value: "anton.padura@proton.me" },
       ],
       skills: ["Information Security", "System Administration", "IT Management", "DevOps", "Network Technologies"],
     },
@@ -173,9 +181,10 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Scripting (Python, PowerShell, bash)",
           "Deployment of RemoteApp for Magnet Forensics",
         ],
+        link: "https://digitalforensics.com",
       },
       {
-        company: "LUXVENRETAIL LLC",
+        company: "LUXWEN RETAIL LLC",
         period: "06.2016 – 08.2021",
         title: "IT Manager / Security Lead",
         responsibilities: [
@@ -187,32 +196,38 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Video surveillance systems",
           "Server hosting in Europe",
         ],
-        link: "https://flirtandtan.com/",
+        link: "https://flirtandtan.com",
       },
       {
         company: 'PJSC "CB "GEFEST"',
         period: "08.2013 – 03.2015",
-        title: "System Administrator",
+        title: "IT Manager",
         responsibilities: [
+
+          "Management and coordination of IT department",
+          "Preparation of IT infrastructure project for opening new bank branches",
           "GSM signal enhancement implementation",
           "Video surveillance and access control administration",
           "Corporate telephony on Asterisk",
           "SCS and infrastructure design",
           "Work with Cisco, D-Link, MikroTik",
-          "VDS and Unix/Linux administration",
+          "VDS and Unix/Linux administration",        
         ],
+        link: "https://bankgefest.com.ua",
       },
       {
         company: 'JSC "CB "SOYUZ"',
         period: "06.2010 – 06.2016",
-        title: "IT Specialist",
+        title: "Deputy Head of Communications",
         responsibilities: [
           "Hybrid IP telephony implementation (Asterisk, Tadiran Telecom, Panasonic)",
           "DLP on DeviceLock",
           "Corporate Wi-Fi (UniFi)",
           "PBX administration",
-          "Scripting",
+          "Scripting (bash, powershell)",
+          "Administration of virtualization system based on MS Hyper-V",
         ],
+        link: "https://banksoyuz.com.ua",
       },
       {
         company: "Heaven Group Multimedia Co. Ltd.",
@@ -225,9 +240,10 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "HP BladeSystem and StorageWorks administration",
           "Mail server",
         ],
+        link: "https://heaventv.tv",
       },
       {
-        company: "LAKINET LLC",
+        company: "LUCKY.NET LLC",
         period: "01.2008 – 08.2009",
         title: "Technical Support Engineer",
         responsibilities: [
@@ -235,6 +251,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
           "Technical support",
           "Documentation",
         ],
+        link: "https://lucky.net",
       },
     ],
     education: [
@@ -267,7 +284,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
     ],
     contact: {
       phone: "+380958777997",
-      email: "padura@proton.me",
+      email: "anton.padura@proton.me",
       location: "Kyiv, Ukraine",
       collaborationTitle: "Ready to collaborate?",
       collaborationText: "Over 15 years of experience in IT security and system administration. Working with companies of all sizes — from startups to corporations.",
