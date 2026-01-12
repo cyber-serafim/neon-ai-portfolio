@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,8 +34,13 @@ const Admin = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [editLanguage, setEditLanguage] = useState<EditLanguage>("uk");
-  const [editedContent, setEditedContent] = useState<BilingualContent>(bilingualContent);
+  const [editedContent, setEditedContent] = useState<BilingualContent>(() => bilingualContent);
   const [activeSection, setActiveSection] = useState<string>("hero");
+
+  // Sync editedContent when bilingualContent changes (e.g., on initial load from localStorage)
+  useEffect(() => {
+    setEditedContent(bilingualContent);
+  }, [bilingualContent]);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   // Get current language content for editing
