@@ -111,12 +111,14 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const updateContent = (newContent: SiteContent, lang: "uk" | "en" = "uk") => {
-    const updated = {
-      ...bilingualContent,
-      [lang]: newContent,
-    };
-    setBilingualContent(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    setBilingualContent((prev) => {
+      const updated: BilingualContent = {
+        ...prev,
+        [lang]: newContent,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const updateBilingualContent = (newContent: BilingualContent) => {
@@ -126,16 +128,19 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
 
   const resetContent = (lang?: "uk" | "en") => {
     if (lang) {
-      const updated = {
-        ...bilingualContent,
-        [lang]: lang === "uk" ? defaultContentUk : defaultContentEn,
-      };
-      setBilingualContent(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } else {
-      setBilingualContent(defaultBilingualContent);
-      localStorage.removeItem(STORAGE_KEY);
+      setBilingualContent((prev) => {
+        const updated: BilingualContent = {
+          ...prev,
+          [lang]: lang === "uk" ? defaultContentUk : defaultContentEn,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
+      return;
     }
+
+    setBilingualContent(defaultBilingualContent);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const getContent = (lang: "uk" | "en"): SiteContent => {
