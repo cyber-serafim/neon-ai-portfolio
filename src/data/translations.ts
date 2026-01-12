@@ -164,7 +164,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
         { label: "Phone", value: "+380958777997" },
         { label: "Email", value: "anton.padura@proton.me" },
       ],
-      skills: ["Information Security", "System Administration", "IT Management", "DevOps", "Network Technologies"],
+      skills: ["Information Security", "System Administration", "IT Management", "DevOps", "VoIP", "Virtualization", "Network Technologies"],
     },
     experiences: [
       {
