@@ -36,11 +36,26 @@ const Admin = () => {
   const [editLanguage, setEditLanguage] = useState<EditLanguage>("uk");
   const [editedContent, setEditedContent] = useState<BilingualContent>(() => bilingualContent);
   const [activeSection, setActiveSection] = useState<string>("hero");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Sync editedContent when bilingualContent changes (e.g., on initial load from localStorage)
+  // Sync editedContent when bilingualContent changes (only once when data is loaded)
   useEffect(() => {
-    setEditedContent(bilingualContent);
-  }, [bilingualContent]);
+    if (!isInitialized) {
+      setEditedContent(bilingualContent);
+      // Only mark as initialized after first real content arrives
+      const hasLoadedContent = localStorage.getItem("site_content_bilingual") !== null;
+      if (hasLoadedContent || bilingualContent.uk.hero.name !== "") {
+        setIsInitialized(true);
+      }
+    }
+  }, [bilingualContent, isInitialized]);
+
+  // Track unsaved changes
+  const handleContentChange = (newContent: BilingualContent) => {
+    setEditedContent(newContent);
+    setHasUnsavedChanges(true);
+  };
   const [previewOpen, setPreviewOpen] = useState(false);
 
   // Get current language content for editing
@@ -48,7 +63,7 @@ const Admin = () => {
 
   // Update content for current language
   const setCurrentContent = (newContent: SiteContent) => {
-    setEditedContent({
+    handleContentChange({
       ...editedContent,
       [editLanguage]: newContent,
     });
@@ -57,6 +72,7 @@ const Admin = () => {
   const handleSave = () => {
     updateContent(editedContent.uk, "uk");
     updateContent(editedContent.en, "en");
+    setHasUnsavedChanges(false);
     toast({
       title: editLanguage === "uk" ? "Збережено!" : "Saved!",
       description: editLanguage === "uk" 
@@ -377,7 +393,7 @@ const Admin = () => {
                   setEditedContent={setCurrentContent}
                   editLanguage={editLanguage}
                   fullBilingualContent={editedContent}
-                  setFullBilingualContent={setEditedContent}
+                  setFullBilingualContent={handleContentChange}
                 />
               )}
 
