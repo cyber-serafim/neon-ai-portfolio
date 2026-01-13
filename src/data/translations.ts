@@ -269,7 +269,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
       },
       {
         institution: "National University of Food Technologies",
-        degree: "Bachelor",
+        degree: "Specialist",
         field: "Automation and Computer Systems",
         period: "2003 – 2008",
       },
