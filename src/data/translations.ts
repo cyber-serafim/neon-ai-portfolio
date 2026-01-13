@@ -55,7 +55,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
         link: "https://flirtandtan.com",
       },
       {
-        company: 'ПАТ "КБ "ГЕФЕСТ""',
+        company: 'ПАТ "КБ "ГЕФЕСТ"',
         period: "08.2013 – 03.2015",
         title: "IT Manager",
         responsibilities: [
@@ -124,7 +124,7 @@ export const contentTranslations: Record<"uk" | "en", SiteContent> = {
       },
       {
         institution: "Національний університет харчових технологій",
-        degree: "Бакалавр",
+        degree: "Спеціаліст",
         field: "Автоматизація та комп'ютерні системи",
         period: "2003 – 2008",
       },
