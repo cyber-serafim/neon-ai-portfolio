@@ -43,20 +43,11 @@ export const AboutSection = () => {
                 
                 {/* Center content */}
                 <div className="absolute inset-12 glass-card rounded-full flex items-center justify-center neon-border-cyan overflow-hidden">
-                  {about.profilePhoto ? (
-                    <img 
-                      src={about.profilePhoto} 
-                      alt="Антон Падура" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-center p-6">
-                      <div className="font-display text-6xl md:text-8xl font-bold text-gradient-neon mb-2">AP</div>
-                      <div className="font-body text-sm md:text-base text-muted-foreground uppercase tracking-widest">
-                        {t.about.securityExpert}
-                      </div>
-                    </div>
-                  )}
+                  <img 
+                    src="/padura_am.png" 
+                    alt="Антон Падура" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
