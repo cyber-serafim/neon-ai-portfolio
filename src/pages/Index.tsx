@@ -7,6 +7,7 @@ import { EducationSection } from "@/components/EducationSection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 import Preloader from "@/components/Preloader";
+import ParallaxBackground from "@/components/ParallaxBackground";
 
 const Index = () => {
   const [showPreloader, setShowPreloader] = useState(true);
@@ -30,7 +31,8 @@ const Index = () => {
       {showPreloader && !hasVisited && (
         <Preloader onComplete={handlePreloaderComplete} />
       )}
-      <main className="min-h-screen bg-background">
+      <ParallaxBackground />
+      <main className="min-h-screen bg-background relative z-10">
         <Navigation />
         <HeroSection />
         <AboutSection />
