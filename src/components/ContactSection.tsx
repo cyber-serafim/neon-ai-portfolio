@@ -7,8 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
 import { useEmailSettings } from "@/hooks/useEmailSettings";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { cn } from "@/lib/utils";
 import emailjs from "@emailjs/browser";
 
 export const ContactSection = () => {
@@ -16,7 +14,6 @@ export const ContactSection = () => {
   const { contact } = content;
   const { t } = useLanguage();
   const { settings, isConfigured } = useEmailSettings();
-  const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -106,11 +103,7 @@ export const ContactSection = () => {
   return (
     <section 
       id="contact" 
-      ref={ref as React.RefObject<HTMLElement>}
-      className={cn(
-        "py-20 md:py-32 relative overflow-hidden bg-gradient-cyber transition-all duration-700 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-      )}
+      className="py-20 md:py-32 relative overflow-hidden bg-gradient-cyber"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 cyber-grid opacity-50" />
