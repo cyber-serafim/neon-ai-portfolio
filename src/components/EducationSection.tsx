@@ -1,16 +1,23 @@
 import { GraduationCap, Award, Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { cn } from "@/lib/utils";
 
 export const EducationSection = () => {
   const content = useTranslatedContent();
   const { education, certificates, languages } = content;
   const { t } = useLanguage();
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section 
       id="education" 
-      className="py-20 md:py-32 relative overflow-hidden"
+      ref={ref as React.RefObject<HTMLElement>}
+      className={cn(
+        "py-20 md:py-32 relative overflow-hidden transition-all duration-700 ease-out",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+      )}
     >
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-neon-magenta/5 to-transparent pointer-events-none" />
