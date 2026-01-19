@@ -6,6 +6,68 @@
 
 @layer base {
   :root {
+    /* Light Theme - Cyberpunk Light */
+    --background: 210 30% 96%;
+    --foreground: 230 25% 15%;
+
+    --card: 210 25% 92%;
+    --card-foreground: 230 25% 15%;
+
+    --popover: 210 25% 92%;
+    --popover-foreground: 230 25% 15%;
+
+    /* Neon Cyan Primary - slightly deeper for light mode */
+    --primary: 180 100% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Neon Magenta Secondary */
+    --secondary: 300 100% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted for light */
+    --muted: 210 20% 88%;
+    --muted-foreground: 230 20% 45%;
+
+    /* Accent */
+    --accent: 270 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 180 40% 75%;
+    --input: 210 25% 90%;
+    --ring: 180 100% 40%;
+
+    --radius: 0.5rem;
+
+    /* Custom neon colors - adjusted for light mode visibility */
+    --neon-cyan: 180 100% 35%;
+    --neon-magenta: 300 100% 40%;
+    --neon-blue: 220 100% 50%;
+    --neon-green: 150 100% 35%;
+    --neon-purple: 270 100% 50%;
+
+    /* Glows - softer for light mode */
+    --glow-cyan: 0 0 15px hsl(180 100% 40% / 0.4), 0 0 30px hsl(180 100% 40% / 0.2);
+    --glow-magenta: 0 0 15px hsl(300 100% 45% / 0.4), 0 0 30px hsl(300 100% 45% / 0.2);
+    --glow-purple: 0 0 15px hsl(270 100% 50% / 0.4), 0 0 30px hsl(270 100% 50% / 0.2);
+
+    /* Fonts */
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+
+    --sidebar-background: 210 30% 96%;
+    --sidebar-foreground: 230 25% 15%;
+    --sidebar-primary: 180 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 88%;
+    --sidebar-accent-foreground: 230 25% 15%;
+    --sidebar-border: 180 40% 75%;
+    --sidebar-ring: 180 100% 40%;
+  }
+
+  .dark {
     /* Cyberpunk Dark Theme */
     --background: 230 25% 5%;
     --foreground: 180 100% 95%;
