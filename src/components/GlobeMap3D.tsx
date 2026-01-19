@@ -1,9 +1,9 @@
 import { useRef, useMemo } from 'react';
-import { Canvas, useFrame, extend, Object3DNode } from '@react-three/fiber';
-import { Sphere, OrbitControls, Float, Line } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Sphere, OrbitControls, Float, Line, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Kyiv coordinates (approximate)
+// Kyiv coordinates
 const KYIV_LAT = 50.4501;
 const KYIV_LNG = 30.5234;
 
@@ -18,83 +18,173 @@ function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector
   return new THREE.Vector3(x, y, z);
 }
 
-function Globe() {
-  const globeRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
+function Earth() {
+  const earthRef = useRef<THREE.Mesh>(null);
+  const cloudsRef = useRef<THREE.Mesh>(null);
   
+  // Earth texture URL (using a simple procedural approach instead)
   useFrame((state) => {
-    if (globeRef.current) {
-      globeRef.current.rotation.y += 0.002;
+    if (earthRef.current) {
+      earthRef.current.rotation.y += 0.001;
     }
-    if (glowRef.current) {
-      glowRef.current.rotation.y += 0.002;
+    if (cloudsRef.current) {
+      cloudsRef.current.rotation.y += 0.0012;
     }
   });
 
-  const gridLines = useMemo(() => {
-    const lines: JSX.Element[] = [];
+  // Create Earth material with continental outlines
+  const earthMaterial = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Ocean base
+    ctx.fillStyle = '#0a1628';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Simplified continental shapes with neon glow effect
+    ctx.fillStyle = '#00f0ff';
+    ctx.strokeStyle = '#00f0ff';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00f0ff';
+    ctx.shadowBlur = 10;
+    
+    // North America
+    ctx.beginPath();
+    ctx.moveTo(120, 100);
+    ctx.lineTo(180, 80);
+    ctx.lineTo(250, 100);
+    ctx.lineTo(280, 150);
+    ctx.lineTo(260, 200);
+    ctx.lineTo(200, 230);
+    ctx.lineTo(150, 220);
+    ctx.lineTo(100, 180);
+    ctx.lineTo(90, 140);
+    ctx.closePath();
+    ctx.fill();
+    
+    // South America
+    ctx.beginPath();
+    ctx.moveTo(220, 260);
+    ctx.lineTo(260, 280);
+    ctx.lineTo(280, 350);
+    ctx.lineTo(260, 420);
+    ctx.lineTo(230, 460);
+    ctx.lineTo(200, 400);
+    ctx.lineTo(190, 320);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Europe
+    ctx.beginPath();
+    ctx.moveTo(480, 100);
+    ctx.lineTo(540, 90);
+    ctx.lineTo(580, 110);
+    ctx.lineTo(560, 150);
+    ctx.lineTo(520, 170);
+    ctx.lineTo(500, 190);
+    ctx.lineTo(470, 160);
+    ctx.lineTo(460, 130);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Africa
+    ctx.beginPath();
+    ctx.moveTo(480, 200);
+    ctx.lineTo(540, 190);
+    ctx.lineTo(580, 230);
+    ctx.lineTo(600, 300);
+    ctx.lineTo(580, 380);
+    ctx.lineTo(530, 400);
+    ctx.lineTo(480, 380);
+    ctx.lineTo(460, 310);
+    ctx.lineTo(470, 250);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Asia
+    ctx.beginPath();
+    ctx.moveTo(600, 80);
+    ctx.lineTo(750, 70);
+    ctx.lineTo(850, 100);
+    ctx.lineTo(900, 150);
+    ctx.lineTo(880, 200);
+    ctx.lineTo(800, 230);
+    ctx.lineTo(700, 220);
+    ctx.lineTo(650, 200);
+    ctx.lineTo(620, 160);
+    ctx.lineTo(590, 130);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Australia
+    ctx.beginPath();
+    ctx.moveTo(800, 320);
+    ctx.lineTo(870, 310);
+    ctx.lineTo(910, 350);
+    ctx.lineTo(900, 400);
+    ctx.lineTo(850, 420);
+    ctx.lineTo(800, 400);
+    ctx.lineTo(780, 360);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Add grid lines
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+    ctx.lineWidth = 1;
+    ctx.shadowBlur = 0;
     
     // Latitude lines
-    for (let lat = -60; lat <= 60; lat += 30) {
-      const points: [number, number, number][] = [];
-      for (let lng = 0; lng <= 360; lng += 5) {
-        const vec = latLngToVector3(lat, lng, 2.02);
-        points.push([vec.x, vec.y, vec.z]);
-      }
-      lines.push(
-        <Line key={`lat-${lat}`} points={points} color="#00f0ff" opacity={0.3} transparent lineWidth={1} />
-      );
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, i * 64);
+      ctx.lineTo(1024, i * 64);
+      ctx.stroke();
     }
     
     // Longitude lines
-    for (let lng = 0; lng < 360; lng += 30) {
-      const points: [number, number, number][] = [];
-      for (let lat = -90; lat <= 90; lat += 5) {
-        const vec = latLngToVector3(lat, lng, 2.02);
-        points.push([vec.x, vec.y, vec.z]);
-      }
-      lines.push(
-        <Line key={`lng-${lng}`} points={points} color="#00f0ff" opacity={0.3} transparent lineWidth={1} />
-      );
+    for (let i = 0; i < 16; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * 64, 0);
+      ctx.lineTo(i * 64, 512);
+      ctx.stroke();
     }
     
-    return lines;
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    
+    return new THREE.MeshPhongMaterial({
+      map: texture,
+      transparent: true,
+      opacity: 0.95,
+      emissive: new THREE.Color('#001a2e'),
+      emissiveIntensity: 0.3,
+    });
   }, []);
 
   return (
     <group>
-      {/* Main globe */}
-      <Sphere ref={globeRef} args={[2, 64, 64]}>
-        <meshPhongMaterial
-          color="#0a0a1a"
-          emissive="#001122"
-          transparent
-          opacity={0.9}
-          wireframe={false}
-        />
-      </Sphere>
+      {/* Main Earth */}
+      <Sphere ref={earthRef} args={[2, 64, 64]} material={earthMaterial} />
       
-      {/* Wireframe overlay */}
-      <Sphere args={[2.01, 32, 32]}>
-        <meshBasicMaterial
-          color="#00f0ff"
-          wireframe
-          transparent
-          opacity={0.15}
-        />
-      </Sphere>
-      
-      {/* Grid lines */}
-      <group>
-        {gridLines}
-      </group>
-      
-      {/* Glow effect */}
-      <Sphere args={[2.15, 32, 32]}>
+      {/* Atmosphere glow */}
+      <Sphere args={[2.08, 32, 32]}>
         <meshBasicMaterial
           color="#00f0ff"
           transparent
-          opacity={0.05}
+          opacity={0.08}
+          side={THREE.BackSide}
+        />
+      </Sphere>
+      
+      {/* Outer atmosphere */}
+      <Sphere args={[2.2, 32, 32]}>
+        <meshBasicMaterial
+          color="#00f0ff"
+          transparent
+          opacity={0.03}
           side={THREE.BackSide}
         />
       </Sphere>
@@ -102,74 +192,84 @@ function Globe() {
   );
 }
 
-function LocationMarker() {
-  const markerRef = useRef<THREE.Group>(null);
-  const position = latLngToVector3(KYIV_LAT, KYIV_LNG, 2.05);
+function KyivMarker() {
+  const markerGroupRef = useRef<THREE.Group>(null);
+  const basePosition = useMemo(() => latLngToVector3(KYIV_LAT, KYIV_LNG, 2.05), []);
   
   useFrame((state) => {
-    if (markerRef.current) {
-      // Rotate with globe
-      const time = state.clock.getElapsedTime();
-      const rotationY = time * 0.002;
+    if (markerGroupRef.current) {
+      // Sync rotation with Earth
+      const rotationY = state.clock.getElapsedTime() * 0.001;
       
-      // Calculate new position based on globe rotation
-      const newPos = position.clone();
+      // Calculate new position based on Earth rotation
+      const newPos = basePosition.clone();
       newPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotationY);
-      markerRef.current.position.copy(newPos);
+      markerGroupRef.current.position.copy(newPos);
       
-      // Point marker outward from center
-      markerRef.current.lookAt(0, 0, 0);
-      markerRef.current.rotateX(Math.PI);
+      // Make marker always face outward
+      markerGroupRef.current.lookAt(0, 0, 0);
+      markerGroupRef.current.rotateX(Math.PI);
     }
   });
 
   return (
-    <group ref={markerRef} position={position}>
-      <Float speed={2} rotationIntensity={0} floatIntensity={0.3}>
-        {/* Marker pin */}
-        <mesh>
-          <coneGeometry args={[0.08, 0.2, 8]} />
+    <group ref={markerGroupRef} position={basePosition}>
+      {/* Marker pin */}
+      <Float speed={3} rotationIntensity={0} floatIntensity={0.2}>
+        <mesh position={[0, 0.1, 0]}>
+          <coneGeometry args={[0.06, 0.15, 8]} />
           <meshStandardMaterial 
             color="#ff00ff" 
             emissive="#ff00ff"
-            emissiveIntensity={0.5}
+            emissiveIntensity={0.8}
           />
         </mesh>
         
-        {/* Glowing ring */}
-        <mesh position={[0, 0.15, 0]}>
-          <torusGeometry args={[0.12, 0.02, 8, 32]} />
+        {/* Glowing sphere at top */}
+        <mesh position={[0, 0.25, 0]}>
+          <sphereGeometry args={[0.05, 16, 16]} />
           <meshStandardMaterial
             color="#ff00ff"
             emissive="#ff00ff"
             emissiveIntensity={1}
-            transparent
-            opacity={0.8}
           />
         </mesh>
         
-        {/* Pulse effect */}
-        <mesh position={[0, 0.15, 0]}>
-          <ringGeometry args={[0.15, 0.25, 32]} />
+        {/* Pulse ring */}
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.08, 0.15, 32]} />
           <meshBasicMaterial
             color="#ff00ff"
             transparent
-            opacity={0.3}
+            opacity={0.4}
             side={THREE.DoubleSide}
           />
         </mesh>
+        
+        {/* 3D Label */}
+        <Html
+          position={[0, 0.5, 0]}
+          center
+          distanceFactor={5}
+          style={{
+            pointerEvents: 'none',
+          }}
+        >
+          <div className="whitespace-nowrap font-display text-sm md:text-base font-bold text-neon-magenta animate-pulse-neon px-3 py-1 bg-background/80 backdrop-blur-sm rounded border border-neon-magenta/50 shadow-[0_0_15px_rgba(255,0,255,0.5)]">
+            Kyiv, Ukraine
+          </div>
+        </Html>
       </Float>
     </group>
   );
 }
 
 function Particles() {
-  const count = 200;
+  const count = 150;
   const particlesRef = useRef<THREE.Points>(null);
   
-  const [positions, sizes] = useMemo(() => {
+  const positions = useMemo(() => {
     const positions = new Float32Array(count * 3);
-    const sizes = new Float32Array(count);
     
     for (let i = 0; i < count; i++) {
       const radius = 3 + Math.random() * 2;
@@ -179,16 +279,14 @@ function Particles() {
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       positions[i * 3 + 2] = radius * Math.cos(phi);
-      
-      sizes[i] = Math.random() * 0.05 + 0.02;
     }
     
-    return [positions, sizes];
+    return positions;
   }, []);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y += 0.0005;
+      particlesRef.current.rotation.y += 0.0003;
     }
   });
 
@@ -201,18 +299,12 @@ function Particles() {
           array={positions}
           itemSize={3}
         />
-        <bufferAttribute
-          attach="attributes-size"
-          count={count}
-          array={sizes}
-          itemSize={1}
-        />
       </bufferGeometry>
       <pointsMaterial
         color="#00f0ff"
-        size={0.03}
+        size={0.025}
         transparent
-        opacity={0.6}
+        opacity={0.5}
         sizeAttenuation
       />
     </points>
@@ -223,16 +315,17 @@ export const GlobeMap3D = () => {
   return (
     <div className="w-full h-[300px] md:h-[350px] relative">
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 45 }}
+        camera={{ position: [0, 0.5, 5.5], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.3} />
-        <pointLight position={[10, 10, 10]} intensity={1} color="#00f0ff" />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff00ff" />
+        <ambientLight intensity={0.4} />
+        <pointLight position={[10, 10, 10]} intensity={1.2} color="#00f0ff" />
+        <pointLight position={[-10, -10, -10]} intensity={0.6} color="#ff00ff" />
+        <directionalLight position={[5, 3, 5]} intensity={0.5} color="#ffffff" />
         
-        <Globe />
-        <LocationMarker />
+        <Earth />
+        <KyivMarker />
         <Particles />
         
         <OrbitControls
@@ -243,13 +336,6 @@ export const GlobeMap3D = () => {
           maxPolarAngle={Math.PI / 1.5}
         />
       </Canvas>
-      
-      {/* Label */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-        <div className="font-display text-sm text-neon-cyan animate-pulse-neon">
-          Kyiv, Ukraine
-        </div>
-      </div>
     </div>
   );
 };
