@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Phone, Mail, Send, MapPin, CheckCircle } from "lucide-react";
+import { GlobeMap3D } from "./GlobeMap3D";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -176,14 +177,24 @@ export const ContactSection = () => {
                 ))}
               </div>
 
-              {/* Decorative element */}
-              <div className="hidden lg:block glass-card p-8 rounded-xl border border-border/50">
-                <div className="font-display text-2xl font-bold mb-4">
-                  <span className="text-gradient-neon">{contact.collaborationTitle}</span>
+              {/* 3D Globe Map */}
+              <div className="glass-card rounded-xl border border-border/50 overflow-hidden">
+                <Suspense fallback={
+                  <div className="w-full h-[300px] md:h-[350px] flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
+                  </div>
+                }>
+                  <GlobeMap3D />
+                </Suspense>
+                
+                <div className="p-6 border-t border-border/50">
+                  <div className="font-display text-2xl font-bold mb-4">
+                    <span className="text-gradient-neon">{contact.collaborationTitle}</span>
+                  </div>
+                  <p className="font-body text-muted-foreground">
+                    {contact.collaborationText}
+                  </p>
                 </div>
-                <p className="font-body text-muted-foreground">
-                  {contact.collaborationText}
-                </p>
               </div>
             </div>
 
