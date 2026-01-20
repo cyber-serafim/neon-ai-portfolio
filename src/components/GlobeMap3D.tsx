@@ -1,35 +1,34 @@
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { Sphere, OrbitControls, Float, Html } from '@react-three/drei';
+import { Sphere, OrbitControls, Float, Html, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Country data with coordinates for labels
+// Country data with coordinates for labels - positioned on globe surface
 const COUNTRIES = [
-  { name: 'Ukraine', lat: 49.0, lng: 32.0, highlight: true },
-  { name: 'USA', lat: 39.0, lng: -98.0 },
-  { name: 'Canada', lat: 56.0, lng: -106.0 },
-  { name: 'Brazil', lat: -14.0, lng: -51.0 },
-  { name: 'Russia', lat: 61.0, lng: 105.0 },
-  { name: 'China', lat: 35.0, lng: 105.0 },
-  { name: 'India', lat: 21.0, lng: 78.0 },
-  { name: 'Australia', lat: -25.0, lng: 133.0 },
-  { name: 'Germany', lat: 51.0, lng: 10.0 },
-  { name: 'France', lat: 46.0, lng: 2.0 },
-  { name: 'UK', lat: 54.0, lng: -2.0 },
-  { name: 'Japan', lat: 36.0, lng: 138.0 },
-  { name: 'Argentina', lat: -38.0, lng: -63.0 },
-  { name: 'South Africa', lat: -30.0, lng: 25.0 },
-  { name: 'Egypt', lat: 26.0, lng: 30.0 },
-  { name: 'Mexico', lat: 23.0, lng: -102.0 },
-  { name: 'Poland', lat: 52.0, lng: 20.0 },
-  { name: 'Spain', lat: 40.0, lng: -4.0 },
-  { name: 'Italy', lat: 42.0, lng: 12.0 },
-  { name: 'Turkey', lat: 39.0, lng: 35.0 },
-  { name: 'Indonesia', lat: -5.0, lng: 120.0 },
-  { name: 'Saudi Arabia', lat: 24.0, lng: 45.0 },
-  { name: 'Kazakhstan', lat: 48.0, lng: 67.0 },
-  { name: 'Nigeria', lat: 10.0, lng: 8.0 },
-  { name: 'Kenya', lat: -1.0, lng: 38.0 },
+  { name: 'USA', lat: 39.0, lng: -98.0, size: 0.12 },
+  { name: 'Canada', lat: 56.0, lng: -106.0, size: 0.1 },
+  { name: 'Brazil', lat: -14.0, lng: -51.0, size: 0.11 },
+  { name: 'Russia', lat: 61.0, lng: 90.0, size: 0.12 },
+  { name: 'China', lat: 35.0, lng: 105.0, size: 0.11 },
+  { name: 'India', lat: 21.0, lng: 78.0, size: 0.09 },
+  { name: 'Australia', lat: -25.0, lng: 133.0, size: 0.1 },
+  { name: 'Germany', lat: 51.0, lng: 10.0, size: 0.07 },
+  { name: 'France', lat: 46.0, lng: 2.0, size: 0.07 },
+  { name: 'UK', lat: 54.0, lng: -2.0, size: 0.06 },
+  { name: 'Japan', lat: 36.0, lng: 138.0, size: 0.07 },
+  { name: 'Argentina', lat: -38.0, lng: -63.0, size: 0.08 },
+  { name: 'South Africa', lat: -30.0, lng: 25.0, size: 0.08 },
+  { name: 'Egypt', lat: 26.0, lng: 30.0, size: 0.07 },
+  { name: 'Mexico', lat: 23.0, lng: -102.0, size: 0.08 },
+  { name: 'Poland', lat: 52.0, lng: 20.0, size: 0.06 },
+  { name: 'Spain', lat: 40.0, lng: -4.0, size: 0.07 },
+  { name: 'Italy', lat: 42.0, lng: 12.0, size: 0.06 },
+  { name: 'Turkey', lat: 39.0, lng: 35.0, size: 0.07 },
+  { name: 'Indonesia', lat: -5.0, lng: 120.0, size: 0.08 },
+  { name: 'Saudi Arabia', lat: 24.0, lng: 45.0, size: 0.07 },
+  { name: 'Kazakhstan', lat: 48.0, lng: 67.0, size: 0.08 },
+  { name: 'Nigeria', lat: 10.0, lng: 8.0, size: 0.07 },
+  { name: 'Kenya', lat: -1.0, lng: 38.0, size: 0.06 },
 ];
 
 // Kyiv coordinates
@@ -49,7 +48,6 @@ function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector
 
 function Earth() {
   const earthRef = useRef<THREE.Mesh>(null);
-  const [texturesLoaded, setTexturesLoaded] = useState(false);
   
   // NASA Earth textures - Blue Marble
   const earthTexture = useLoader(
@@ -61,18 +59,6 @@ function Earth() {
     THREE.TextureLoader,
     'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png'
   );
-
-  useEffect(() => {
-    if (earthTexture && bumpTexture) {
-      setTexturesLoaded(true);
-    }
-  }, [earthTexture, bumpTexture]);
-  
-  useFrame(() => {
-    if (earthRef.current) {
-      earthRef.current.rotation.y += 0.0008;
-    }
-  });
 
   return (
     <group>
@@ -110,43 +96,40 @@ function Earth() {
   );
 }
 
+// Country labels rendered as 3D text on the globe surface
 function CountryLabels() {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0008;
-    }
-  });
-
   return (
-    <group ref={groupRef}>
+    <group>
       {COUNTRIES.map((country) => {
-        const position = latLngToVector3(country.lat, country.lng, 2.15);
-        const isHighlight = country.highlight;
+        const position = latLngToVector3(country.lat, country.lng, 2.02);
+        const lookAtCenter = new THREE.Vector3(0, 0, 0);
+        
+        // Calculate rotation to face outward from globe center
+        const direction = position.clone().normalize();
+        const up = new THREE.Vector3(0, 1, 0);
+        const quaternion = new THREE.Quaternion();
+        const matrix = new THREE.Matrix4();
+        matrix.lookAt(position, lookAtCenter, up);
+        quaternion.setFromRotationMatrix(matrix);
+        
+        // Convert quaternion to euler for rotation prop
+        const euler = new THREE.Euler().setFromQuaternion(quaternion);
         
         return (
-          <Html
+          <Text
             key={country.name}
             position={[position.x, position.y, position.z]}
-            center
-            distanceFactor={6}
-            occlude={false}
-            style={{
-              pointerEvents: 'none',
-              opacity: 0.9,
-            }}
+            rotation={[euler.x, euler.y + Math.PI, euler.z]}
+            fontSize={country.size}
+            color="#00f0ff"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.008}
+            outlineColor="#003344"
+            font="https://fonts.gstatic.com/s/orbitron/v31/yMJRMIlzdpvBhQQL_Qq7dys.woff"
           >
-            <div 
-              className={`whitespace-nowrap font-display text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm transition-all ${
-                isHighlight 
-                  ? 'text-neon-magenta font-bold text-xs border border-neon-magenta/50 bg-background/70 shadow-[0_0_10px_rgba(255,0,255,0.4)]' 
-                  : 'text-neon-cyan/80 bg-background/50 border border-neon-cyan/20'
-              }`}
-            >
-              {country.name}
-            </div>
-          </Html>
+            {country.name}
+          </Text>
         );
       })}
     </group>
@@ -154,22 +137,10 @@ function CountryLabels() {
 }
 
 function KyivMarker() {
-  const markerGroupRef = useRef<THREE.Group>(null);
   const basePosition = useMemo(() => latLngToVector3(KYIV_LAT, KYIV_LNG, 2.08), []);
-  
-  useFrame((state) => {
-    if (markerGroupRef.current) {
-      const rotationY = state.clock.getElapsedTime() * 0.0008;
-      const newPos = basePosition.clone();
-      newPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotationY);
-      markerGroupRef.current.position.copy(newPos);
-      markerGroupRef.current.lookAt(0, 0, 0);
-      markerGroupRef.current.rotateX(Math.PI);
-    }
-  });
 
   return (
-    <group ref={markerGroupRef} position={basePosition}>
+    <group position={basePosition}>
       <Float speed={3} rotationIntensity={0} floatIntensity={0.15}>
         {/* Marker pin */}
         <mesh position={[0, 0.08, 0]}>
@@ -281,13 +252,24 @@ export const GlobeMap3D = () => {
         <Particles />
         
         <OrbitControls
-          enableZoom={false}
+          enableZoom={true}
           enablePan={false}
-          autoRotate={false}
-          minPolarAngle={Math.PI / 3}
-          maxPolarAngle={Math.PI / 1.5}
+          enableRotate={true}
+          autoRotate={true}
+          autoRotateSpeed={0.5}
+          minDistance={3.5}
+          maxDistance={10}
+          minPolarAngle={Math.PI / 4}
+          maxPolarAngle={Math.PI / 1.3}
+          zoomSpeed={0.8}
+          rotateSpeed={0.6}
         />
       </Canvas>
+      
+      {/* Interaction hint */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-neon-cyan/60 font-mono pointer-events-none">
+        🖱️ Drag to rotate • Scroll to zoom
+      </div>
     </div>
   );
 };
