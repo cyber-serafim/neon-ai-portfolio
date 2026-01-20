@@ -96,40 +96,34 @@ function Earth() {
   );
 }
 
-// Country labels rendered as 3D text on the globe surface
+// Country labels rendered as 3D text on the globe surface - Billboard style (always face camera)
 function CountryLabels() {
   return (
     <group>
       {COUNTRIES.map((country) => {
-        const position = latLngToVector3(country.lat, country.lng, 2.02);
-        const lookAtCenter = new THREE.Vector3(0, 0, 0);
-        
-        // Calculate rotation to face outward from globe center
-        const direction = position.clone().normalize();
-        const up = new THREE.Vector3(0, 1, 0);
-        const quaternion = new THREE.Quaternion();
-        const matrix = new THREE.Matrix4();
-        matrix.lookAt(position, lookAtCenter, up);
-        quaternion.setFromRotationMatrix(matrix);
-        
-        // Convert quaternion to euler for rotation prop
-        const euler = new THREE.Euler().setFromQuaternion(quaternion);
+        const position = latLngToVector3(country.lat, country.lng, 2.05);
         
         return (
-          <Text
+          <Html
             key={country.name}
             position={[position.x, position.y, position.z]}
-            rotation={[euler.x, euler.y + Math.PI, euler.z]}
-            fontSize={country.size}
-            color="#00f0ff"
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={0.008}
-            outlineColor="#003344"
-            font="https://fonts.gstatic.com/s/orbitron/v31/yMJRMIlzdpvBhQQL_Qq7dys.woff"
+            center
+            distanceFactor={8}
+            occlude={false}
+            style={{ pointerEvents: 'none' }}
           >
-            {country.name}
-          </Text>
+            <span 
+              className="font-display text-neon-cyan whitespace-nowrap select-none"
+              style={{ 
+                fontSize: `${country.size * 70}px`,
+                textShadow: '0 0 8px rgba(0,240,255,0.8), 0 0 2px rgba(0,240,255,1)',
+                fontWeight: 600,
+                letterSpacing: '0.05em'
+              }}
+            >
+              {country.name}
+            </span>
+          </Html>
         );
       })}
     </group>
