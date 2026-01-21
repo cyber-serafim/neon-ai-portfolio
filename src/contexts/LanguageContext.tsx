@@ -48,6 +48,8 @@ interface Translations {
       namePlaceholder: string;
       email: string;
       emailPlaceholder: string;
+      phone: string;
+      phonePlaceholder: string;
       message: string;
       messagePlaceholder: string;
       submit: string;
@@ -118,6 +120,8 @@ const translations: Record<Language, Translations> = {
         namePlaceholder: "Ваше ім'я",
         email: "Email",
         emailPlaceholder: "your@email.com",
+        phone: "Телефон",
+        phonePlaceholder: "+380 XX XXX XX XX",
         message: "Повідомлення",
         messagePlaceholder: "Ваше повідомлення...",
         submit: "Надіслати",
@@ -186,6 +190,8 @@ const translations: Record<Language, Translations> = {
         namePlaceholder: "Your name",
         email: "Email",
         emailPlaceholder: "your@email.com",
+        phone: "Phone",
+        phonePlaceholder: "+380 XX XXX XX XX",
         message: "Message",
         messagePlaceholder: "Your message...",
         submit: "Send",
