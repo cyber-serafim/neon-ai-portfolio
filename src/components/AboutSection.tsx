@@ -1,14 +1,13 @@
 import { MapPin, Mail, Phone, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { cn } from "@/lib/utils";
+import { useSectionParallax } from "@/hooks/useSectionParallax";
 
 export const AboutSection = () => {
   const content = useTranslatedContent();
   const { about } = content;
   const { t } = useLanguage();
-  const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
+  const { ref, style } = useSectionParallax({ speed: 0.06, scale: true, fade: true });
 
   const getIconForLabel = (label: string) => {
     const lowerLabel = label.toLowerCase();
@@ -23,10 +22,8 @@ export const AboutSection = () => {
     <section 
       id="about" 
       ref={ref as React.RefObject<HTMLElement>}
-      className={cn(
-        "py-20 md:py-32 relative overflow-hidden transition-all duration-700 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-      )}
+      className="py-20 md:py-32 relative overflow-hidden"
+      style={style}
     >
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-neon-cyan/5 to-transparent pointer-events-none" />

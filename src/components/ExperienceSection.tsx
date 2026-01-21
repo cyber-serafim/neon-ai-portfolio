@@ -3,23 +3,21 @@ import { Briefcase, ChevronDown, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useSectionParallax } from "@/hooks/useSectionParallax";
 
 export const ExperienceSection = () => {
   const content = useTranslatedContent();
   const { experiences } = content;
   const { t } = useLanguage();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
-  const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
+  const { ref, style } = useSectionParallax({ speed: 0.05, scale: true, fade: true });
 
   return (
     <section 
       id="experience" 
       ref={ref as React.RefObject<HTMLElement>}
-      className={cn(
-        "py-20 md:py-32 relative overflow-hidden bg-gradient-cyber transition-all duration-700 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-      )}
+      className="py-20 md:py-32 relative overflow-hidden bg-gradient-cyber"
+      style={style}
     >
       {/* Background decoration */}
       <div className="absolute inset-0 cyber-grid opacity-50" />
