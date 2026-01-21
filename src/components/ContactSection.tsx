@@ -21,6 +21,7 @@ export const ContactSection = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +50,7 @@ export const ContactSection = () => {
           {
             from_name: formData.name,
             from_email: formData.email,
+            from_phone: formData.phone,
             message: formData.message,
             to_email: settings.recipientEmail || contact.email,
           },
@@ -67,7 +69,7 @@ export const ContactSection = () => {
 
       // Reset form after delay
       setTimeout(() => {
-        setFormData({ name: "", email: "", message: "" });
+        setFormData({ name: "", email: "", phone: "", message: "" });
         setIsSubmitted(false);
       }, 3000);
     } catch (error: any) {
@@ -237,6 +239,20 @@ export const ContactSection = () => {
                       required
                       className="bg-muted border-border/50 focus:border-neon-cyan focus:ring-neon-cyan/20 font-body"
                       placeholder={t.contact.form.emailPlaceholder}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-body text-sm text-muted-foreground uppercase tracking-wider block mb-2">
+                      {t.contact.form.phone}
+                    </label>
+                    <Input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="bg-muted border-border/50 focus:border-neon-cyan focus:ring-neon-cyan/20 font-body"
+                      placeholder={t.contact.form.phonePlaceholder}
                     />
                   </div>
 
