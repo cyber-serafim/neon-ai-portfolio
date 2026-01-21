@@ -259,7 +259,7 @@
   }
 
   .bg-gradient-cyber {
-    background: linear-gradient(135deg, hsl(230 25% 5%) 0%, hsl(230 30% 10%) 50%, hsl(230 25% 5%) 100%);
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 50%, hsl(var(--background)) 100%);
   }
 
   .border-gradient-neon {
