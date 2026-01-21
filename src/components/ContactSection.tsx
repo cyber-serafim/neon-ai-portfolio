@@ -4,6 +4,7 @@ import { GlobeMap3D } from "./GlobeMap3D";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
@@ -24,6 +25,7 @@ export const ContactSection = () => {
     phone: "",
     message: "",
   });
+  const [consentGiven, setConsentGiven] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
@@ -70,6 +72,7 @@ export const ContactSection = () => {
       // Reset form after delay
       setTimeout(() => {
         setFormData({ name: "", email: "", phone: "", message: "" });
+        setConsentGiven(false);
         setIsSubmitted(false);
       }, 3000);
     } catch (error: any) {
@@ -271,12 +274,27 @@ export const ContactSection = () => {
                     />
                   </div>
 
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="consent"
+                      checked={consentGiven}
+                      onCheckedChange={(checked) => setConsentGiven(checked === true)}
+                      className="mt-1 border-border/50 data-[state=checked]:bg-neon-cyan data-[state=checked]:border-neon-cyan"
+                    />
+                    <label 
+                      htmlFor="consent" 
+                      className="font-body text-sm text-muted-foreground cursor-pointer leading-relaxed"
+                    >
+                      {t.contact.form.consent}
+                    </label>
+                  </div>
+
                   <Button
                     type="submit"
                     variant="neonFilled"
                     size="lg"
                     className="w-full"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !consentGiven}
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
