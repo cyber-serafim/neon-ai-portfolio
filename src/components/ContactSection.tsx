@@ -285,7 +285,15 @@ export const ContactSection = () => {
                       htmlFor="consent" 
                       className="font-body text-sm text-muted-foreground cursor-pointer leading-relaxed"
                     >
-                      {t.contact.form.consent}
+                      {t.contact.form.consentPrefix}
+                      <a 
+                        href="/privacy-policy" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-neon-cyan hover:text-neon-magenta underline underline-offset-2 transition-colors"
+                      >
+                        {t.contact.form.consentLink}
+                      </a>
                     </label>
                   </div>
 

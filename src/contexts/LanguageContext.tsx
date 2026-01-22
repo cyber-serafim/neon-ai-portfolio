@@ -52,7 +52,8 @@ interface Translations {
       phonePlaceholder: string;
       message: string;
       messagePlaceholder: string;
-      consent: string;
+      consentPrefix: string;
+      consentLink: string;
       submit: string;
       sending: string;
     };
@@ -125,7 +126,8 @@ const translations: Record<Language, Translations> = {
         phonePlaceholder: "+380 XX XXX XX XX",
         message: "Повідомлення",
         messagePlaceholder: "Ваше повідомлення...",
-        consent: "Я погоджуюся на обробку моїх персональних даних відповідно до політики конфіденційності",
+        consentPrefix: "Я погоджуюся на обробку моїх персональних даних відповідно до ",
+        consentLink: "політики конфіденційності",
         submit: "Надіслати",
         sending: "Надсилання...",
       },
@@ -196,7 +198,8 @@ const translations: Record<Language, Translations> = {
         phonePlaceholder: "+380 XX XXX XX XX",
         message: "Message",
         messagePlaceholder: "Your message...",
-        consent: "I agree to the processing of my personal data in accordance with the privacy policy",
+        consentPrefix: "I agree to the processing of my personal data in accordance with the ",
+        consentLink: "privacy policy",
         submit: "Send",
         sending: "Sending...",
       },
