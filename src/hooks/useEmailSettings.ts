@@ -16,19 +16,23 @@ const defaultSettings: EmailSettings = {
   recipientEmail: "",
 };
 
-export const useEmailSettings = () => {
-  const [settings, setSettings] = useState<EmailSettings>(defaultSettings);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setSettings(JSON.parse(saved));
-      } catch {
-        console.error("Failed to parse email settings");
-      }
+// Get initial settings synchronously to avoid hydration mismatch
+const getInitialSettings = (): EmailSettings => {
+  if (typeof window === "undefined") return defaultSettings;
+  
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      console.error("Failed to parse email settings");
     }
-  }, []);
+  }
+  return defaultSettings;
+};
+
+export const useEmailSettings = () => {
+  const [settings, setSettings] = useState<EmailSettings>(getInitialSettings);
 
   const updateSettings = (newSettings: EmailSettings) => {
     setSettings(newSettings);
