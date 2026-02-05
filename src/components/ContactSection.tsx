@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedContent } from "@/hooks/useTranslatedContent";
 import { useEmailSettings } from "@/hooks/useEmailSettings";
+import { useTelegramSettings, sendTelegramMessage } from "@/hooks/useTelegramSettings";
 import { useSectionParallax } from "@/hooks/useSectionParallax";
 import emailjs from "@emailjs/browser";
 
@@ -16,7 +17,8 @@ export const ContactSection = () => {
   const content = useTranslatedContent();
   const { contact } = content;
   const { t } = useLanguage();
-  const { settings, isConfigured } = useEmailSettings();
+  const { settings: emailSettings, isConfigured: isEmailConfigured } = useEmailSettings();
+  const { settings: telegramSettings, isConfigured: isTelegramConfigured } = useTelegramSettings();
   const { ref, style } = useSectionParallax({ speed: 0.04, scale: true, fade: true });
   
   const [formData, setFormData] = useState({
@@ -44,22 +46,30 @@ export const ContactSection = () => {
     setIsSubmitting(true);
 
     try {
-      if (isConfigured) {
-        // Send email via EmailJS
+      if (isTelegramConfigured) {
+        // Send via Telegram (Make.com webhook)
+        await sendTelegramMessage(telegramSettings.webhookUrl, {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+        });
+      } else if (isEmailConfigured) {
+        // Fallback to EmailJS
         await emailjs.send(
-          settings.serviceId,
-          settings.templateId,
+          emailSettings.serviceId,
+          emailSettings.templateId,
           {
             from_name: formData.name,
             from_email: formData.email,
             from_phone: formData.phone,
             message: formData.message,
-            to_email: settings.recipientEmail || contact.email,
+            to_email: emailSettings.recipientEmail || contact.email,
           },
-          settings.publicKey
+          emailSettings.publicKey
         );
       } else {
-        // Fallback: just simulate submission if not configured
+        // No notification configured - just simulate
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
 
