@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye, Mail } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +25,7 @@ import {
   PreviewContactSection,
 } from "@/components/admin/PreviewSections";
 import { EmailSettingsEditor } from "@/components/admin/EmailSettingsEditor";
+import { TelegramSettingsEditor } from "@/components/admin/TelegramSettingsEditor";
 
 type EditLanguage = "uk" | "en";
 
@@ -107,7 +108,8 @@ const Admin = () => {
     { id: "certificates", label: editLanguage === "uk" ? "Сертифікати" : "Certificates" },
     { id: "languages", label: editLanguage === "uk" ? "Мови" : "Languages" },
     { id: "contact", label: editLanguage === "uk" ? "Контакти" : "Contacts" },
-    { id: "email", label: editLanguage === "uk" ? "Налаштування пошти" : "Email Settings" },
+    { id: "telegram", label: editLanguage === "uk" ? "Telegram сповіщення" : "Telegram Notifications" },
+    { id: "email", label: editLanguage === "uk" ? "Налаштування пошти (Email)" : "Email Settings" },
     { id: "export", label: editLanguage === "uk" ? "Експорт та розгортання" : "Export & Deploy" },
   ];
 
@@ -765,6 +767,11 @@ const Admin = () => {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* Telegram Settings Section */}
+              {activeSection === "telegram" && (
+                <TelegramSettingsEditor editLanguage={editLanguage} />
               )}
 
               {/* Email Settings Section */}
