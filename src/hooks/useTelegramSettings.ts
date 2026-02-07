@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+// Production webhook URL - works in all browsers
+const PRODUCTION_WEBHOOK_URL = "https://hook.eu1.make.com/ofaqamzyilw26rnhs4q1u6afeikuuimg";
+
 export interface TelegramSettings {
   webhookUrl: string;
   isEnabled: boolean;
@@ -8,8 +11,8 @@ export interface TelegramSettings {
 const STORAGE_KEY = "telegram_settings";
 
 const defaultSettings: TelegramSettings = {
-  webhookUrl: "",
-  isEnabled: false,
+  webhookUrl: PRODUCTION_WEBHOOK_URL,
+  isEnabled: true, // Enabled by default with production URL
 };
 
 // Get initial settings synchronously
