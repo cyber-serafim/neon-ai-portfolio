@@ -53,19 +53,32 @@ export const sendTelegramMessage = async (
     message: string;
   }
 ): Promise<void> => {
-  const response = await fetch(webhookUrl, {
+  // NOTE:
+  // We use `mode: "no-cors"` so the request can be sent from any browser even if
+  // the webhook doesn't provide CORS headers.
+  // In `no-cors`, browsers only allow "simple" request headers, so JSON
+  // (`Content-Type: application/json`) may be downgraded and Make may not parse it.
+  // Sending as x-www-form-urlencoded keeps it "simple" and Make can map fields.
+
+  const payload = {
+    ...data,
+    timestamp: new Date().toISOString(),
+    source: typeof window !== "undefined" ? window.location.origin : "",
+  };
+
+  const body = new URLSearchParams();
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === null) continue;
+    body.set(key, String(value));
+  }
+
+  await fetch(webhookUrl, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    mode: "no-cors", // Make.com handles CORS
-    body: JSON.stringify({
-      ...data,
-      timestamp: new Date().toISOString(),
-      source: window.location.origin,
-    }),
+    mode: "no-cors",
+    body,
   });
 
   // With no-cors we can't read response, but if no error thrown, assume success
   return;
 };
+
