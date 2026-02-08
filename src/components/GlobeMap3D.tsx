@@ -1,6 +1,6 @@
 import { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { Sphere, OrbitControls, Float, Html } from '@react-three/drei';
+import { Sphere, OrbitControls, Float, Html, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Country data with coordinates for labels - positioned on globe surface
@@ -257,6 +257,46 @@ function KyivMarker() {
   );
 }
 
+// Interactive starfield background
+function StarField() {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  // Slow rotation for immersive effect
+  useFrame(() => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.0001;
+      groupRef.current.rotation.x += 0.00005;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Dense background stars */}
+      <Stars
+        radius={80}
+        depth={60}
+        count={3000}
+        factor={4}
+        saturation={0.3}
+        fade
+        speed={0.8}
+      />
+      
+      {/* Closer bright stars with cyan tint */}
+      <Stars
+        radius={40}
+        depth={30}
+        count={500}
+        factor={6}
+        saturation={0.8}
+        fade
+        speed={1.2}
+      />
+    </group>
+  );
+}
+
+// Floating particles around the globe
 function Particles() {
   const count = 120;
   const particlesRef = useRef<THREE.Points>(null);
@@ -314,6 +354,7 @@ export const GlobeMap3D = () => {
         <pointLight position={[-10, -10, -10]} intensity={0.4} color="#00f0ff" />
         <directionalLight position={[5, 3, 5]} intensity={0.6} color="#ffffff" />
         
+        <StarField />
         <Earth />
         <CountryLabels />
         <KyivMarker />
