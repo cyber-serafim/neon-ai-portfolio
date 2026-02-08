@@ -1,6 +1,6 @@
 import { useRef, useMemo, useState } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { Sphere, OrbitControls, Float, Html, Text } from '@react-three/drei';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
+import { Sphere, OrbitControls, Float, Html } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Country data with coordinates for labels - positioned on globe surface
@@ -96,10 +96,30 @@ function Earth() {
   );
 }
 
-// Interactive country label component
+// Interactive country label component with visibility based on globe side
 function CountryLabel({ country }: { country: typeof COUNTRIES[0] }) {
   const [isHovered, setIsHovered] = useState(false);
-  const position = latLngToVector3(country.lat, country.lng, 2.05);
+  const [isVisible, setIsVisible] = useState(true);
+  const { camera } = useThree();
+  
+  const position = useMemo(() => latLngToVector3(country.lat, country.lng, 2.05), [country.lat, country.lng]);
+  
+  // Check if the label is on the visible side of the globe
+  useFrame(() => {
+    // Vector from globe center to label position (normalized)
+    const labelDir = position.clone().normalize();
+    
+    // Vector from globe center to camera
+    const cameraDir = camera.position.clone().normalize();
+    
+    // Dot product: positive = visible side, negative = hidden side
+    const dot = labelDir.dot(cameraDir);
+    
+    // Show label only if on the visible hemisphere (with small margin for edge)
+    setIsVisible(dot > 0.1);
+  });
+  
+  if (!isVisible) return null;
   
   return (
     <Html
