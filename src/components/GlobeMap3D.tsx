@@ -257,11 +257,45 @@ function KyivMarker() {
   );
 }
 
-// Interactive starfield background
+// Nebula / galaxy cloud
+function Nebula({ position, color, scale = 1, opacity = 0.12 }: { position: [number, number, number]; color: string; scale?: number; opacity?: number }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  const texture = useMemo(() => {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(0.4, color + '88');
+    gradient.addColorStop(0.7, color + '22');
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const tex = new THREE.CanvasTexture(canvas);
+    return tex;
+  }, [color]);
+
+  useFrame((_, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.z += delta * 0.01;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} position={position}>
+      <planeGeometry args={[30 * scale, 30 * scale]} />
+      <meshBasicMaterial map={texture} transparent opacity={opacity} depthWrite={false} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} />
+    </mesh>
+  );
+}
+
+// Interactive starfield background with nebulae
 function StarField() {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Slow rotation for immersive effect
   useFrame(() => {
     if (groupRef.current) {
       groupRef.current.rotation.y += 0.0001;
@@ -271,27 +305,15 @@ function StarField() {
 
   return (
     <group ref={groupRef}>
-      {/* Dense background stars */}
-      <Stars
-        radius={80}
-        depth={60}
-        count={3000}
-        factor={4}
-        saturation={0.3}
-        fade
-        speed={0.8}
-      />
+      <Stars radius={80} depth={60} count={3000} factor={4} saturation={0.3} fade speed={0.8} />
+      <Stars radius={40} depth={30} count={500} factor={6} saturation={0.8} fade speed={1.2} />
       
-      {/* Closer bright stars with cyan tint */}
-      <Stars
-        radius={40}
-        depth={30}
-        count={500}
-        factor={6}
-        saturation={0.8}
-        fade
-        speed={1.2}
-      />
+      {/* Nebulae / galaxies */}
+      <Nebula position={[-50, 30, -60]} color="#6622aa" scale={2.5} opacity={0.08} />
+      <Nebula position={[45, -20, -70]} color="#0066ff" scale={2} opacity={0.06} />
+      <Nebula position={[20, 50, -55]} color="#00ccaa" scale={1.8} opacity={0.07} />
+      <Nebula position={[-30, -40, -65]} color="#ff3366" scale={1.5} opacity={0.05} />
+      <Nebula position={[60, 10, -80]} color="#aa44ff" scale={3} opacity={0.04} />
     </group>
   );
 }
