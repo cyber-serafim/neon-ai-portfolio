@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye, Mail, MessageCircle } from "lucide-react";
+import { LogOut, Save, RotateCcw, Home, ChevronDown, Upload, X, Download, FileText, Info, Archive, Globe, Eye, Mail, MessageCircle, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -431,6 +431,7 @@ const Admin = () => {
                       key={expIndex}
                       experience={exp}
                       index={expIndex}
+                      total={currentContent.experiences.length}
                       editLanguage={editLanguage}
                       onChange={(updated) => {
                         const newExps = [...currentContent.experiences];
@@ -439,6 +440,12 @@ const Admin = () => {
                       }}
                       onDelete={() => {
                         const newExps = currentContent.experiences.filter((_, i) => i !== expIndex);
+                        setCurrentContent({ ...currentContent, experiences: newExps });
+                      }}
+                      onMove={(direction) => {
+                        const newExps = [...currentContent.experiences];
+                        const targetIndex = direction === "up" ? expIndex - 1 : expIndex + 1;
+                        [newExps[expIndex], newExps[targetIndex]] = [newExps[targetIndex], newExps[expIndex]];
                         setCurrentContent({ ...currentContent, experiences: newExps });
                       }}
                     />
@@ -1085,12 +1092,14 @@ const AboutSectionEditor = ({ editedContent, setEditedContent, editLanguage, ful
 interface ExperienceEditorProps {
   experience: Experience;
   index: number;
+  total: number;
   editLanguage: EditLanguage;
   onChange: (updated: Experience) => void;
   onDelete: () => void;
+  onMove: (direction: "up" | "down") => void;
 }
 
-const ExperienceEditor = ({ experience, index, editLanguage, onChange, onDelete }: ExperienceEditorProps) => {
+const ExperienceEditor = ({ experience, index, total, editLanguage, onChange, onDelete, onMove }: ExperienceEditorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -1100,6 +1109,28 @@ const ExperienceEditor = ({ experience, index, editLanguage, onChange, onDelete 
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 text-muted-foreground hover:text-foreground"
+              disabled={index === 0}
+              onClick={(e) => { e.stopPropagation(); onMove("up"); }}
+              title={editLanguage === "uk" ? "Вгору" : "Move up"}
+            >
+              <ArrowUp className="w-3 h-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 text-muted-foreground hover:text-foreground"
+              disabled={index === total - 1}
+              onClick={(e) => { e.stopPropagation(); onMove("down"); }}
+              title={editLanguage === "uk" ? "Вниз" : "Move down"}
+            >
+              <ArrowDown className="w-3 h-3" />
+            </Button>
+          </div>
           <ChevronDown className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-180")} />
           <div>
             <h3 className="font-display font-bold text-foreground">{experience.company}</h3>
